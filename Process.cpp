@@ -1,6 +1,10 @@
 #include "Process.h"
 
-Process::Process(float ArrivalTime, ProcessType Type, int DispatchLatency, int ExecutionTime, int Priority) {
+Process::Process()
+{
+}
+
+Process::Process(int ArrivalTime, ProcessType Type, int DispatchLatency, int ExecutionTime, int Priority) {
 this-> ArrivalTime = ArrivalTime;
 this-> Type = Type;
 this-> DispatchLatency = DispatchLatency;
@@ -8,7 +12,7 @@ this-> ExecutionTime = ExecutionTime;
 this-> Priority = Priority;
 }
 
-void Process::SetArrivalTime(float ArrivalTime) {
+void Process::SetArrivalTime(int ArrivalTime) {
 this-> ArrivalTime = ArrivalTime;
 }
 
@@ -28,7 +32,13 @@ void Process::SetPriority(int Priority) {
 this-> Priority = Priority;
 }
 
-float Process::GetArrivalTime() {
+void Process::SetStatus(ProcessStatus Status)
+{
+    this->Status = Status
+}
+
+
+int Process::GetArrivalTime() {
     return ArrivalTime;
 }
 
@@ -47,6 +57,17 @@ int Process::GetExecutionTime() {
 int Process::GetPriority() {
     return Priority;
 }
+
+int Process::GetID()
+{
+    return ID;
+}
+
+ProcessStatus Process::getStatus()
+{
+    return Status;
+}
+
 
 Process::~Process()
 {

@@ -1,0 +1,13 @@
+Waiting System Processes: Hashing → we need to design a priority equation.
+Waiting Computationally Intensive Processes: Queue →  we need to assign them based on a first-come-first-served basis.
+Waiting Interactive Processes: Queue → we need to assign them based on a first-come-first-served basis.
+
+Machines: linked list
+
+In-execution: linked list
+Completed Processes: linked list
+
+
+Array of Event pointers in class MasterNode
+
+
