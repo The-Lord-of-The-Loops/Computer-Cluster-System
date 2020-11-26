@@ -10,7 +10,7 @@ ArrivalEvent::ArrivalEvent(int AT, int ID, ProcessType TYP, int DL, int ET, int 
 
 void ArrivalEvent::Execute()
 {
-	Process NewProcess(AT, TYP, DL, ET, P);
+	Process NewProcess(ArrivalTime, TYP, DL, ET, P);
 	AddtoWaitList(NewProcess);
 }
 

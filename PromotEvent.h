@@ -1,8 +1,6 @@
 #pragma once
 #include "Event.h"
-class PromotEvent :
-	public Event
-{
+class PromotEvent : public Event{
 public:
 	PromotEvent(int AT, int ID, MasterNode* MN) : Event(AT, ID, MN) {};
 	void Execute() override;

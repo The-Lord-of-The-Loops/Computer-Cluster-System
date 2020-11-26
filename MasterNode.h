@@ -6,22 +6,27 @@
 #include "Node.h"
 #include "LinkedList.h"
 #include "PriorityQueue.h"
+#include "Event.h"
+#include "ArrivalEvent.h"
+#include "CancelEvent.h"
+#include "PromotEvent.h"
 
-class MasterNode
-{
-
+class MasterNode{
 public:
-	
-	/*MasterNode(LinkedList<Machine> * MachineList,	LinkedList<Process> * ProcessList);
+	MasterNode(LinkedList<Machine> * MachineList,	LinkedList<Process> * ProcessList, LinkedList<Event> *Events);
+	void ReadEvents(int cycle);
+	void ExecuteProcesses(int cycle, LinkedList<Process>* ToBeExecuted);
+	void PrintInfo();
 	bool Assign(Process Process);
 	bool deleteProcess(Process Process);
-	bool Wait(Process Process);
 	bool Promote(Process Process);
 	void AddtoWaitlist(Process Process);
-	~MasterNode();*/
+	void isEmpty(bool &Running);
+	~MasterNode();
 
+	LinkedList<Event>* Events;
 	LinkedList<Machine>* MachineList;
-	//LinkedList<Process>* ProcessList;
+	LinkedList<Process>* ProcessList;
 	PriorityQueue<Process> SysWaitingList;
 	LinkedQueue<Process> InterWaitingList;
 	LinkedQueue<Process> CompIntenWaitingList;
