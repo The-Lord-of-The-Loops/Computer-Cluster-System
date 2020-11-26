@@ -3,9 +3,8 @@
 MasterNode::MasterNode(string inputfile, string outputfile)
 
 {
-	 ReadNecessaryData(inputfile);
+	ReadNecessaryData(inputfile);
 	clock = 0;
-
 }
 
 bool MasterNode::Assign(Process Process)
@@ -141,6 +140,34 @@ void MasterNode::ReadNecessaryData(string infile)
 	Infile.open(infile);
 	Infile >> no_GP >> no_GU >> no_IO >> rsp_GP >> rsp_GU >> rsp_IO >> N >> BGP >> BGU >> BIO >> AutoP >> E;
 	//cout << " " << no_GP << " " << no_GU << " " << no_IO << " " << rsp_GP << " " << rsp_GU << " " << rsp_IO << " " << N << " " << BGP << " " << BGU << " " << BIO << " " << AutoP << " " << E;
+	char EventType, processtype;
+	int at, id, dl, et, p;
+
+	for (int i = 0; i < E, i++)
+	{
+		Infile >> EventType;
+
+		if (EventType == 'A')
+		{
+			Infile >> processtype >> at >> id >> dl >> et >> p;
+			arrEvents[i] = new ArrivalEvent(at, id, (processtype == 'S') ? System : (processtype == 'I') ? Interactive : ComputationallyIntensive, dl, et, p, this); ///////////////////////////check this
+		
+		}
+		if (EventType == 'X')
+		{
+			Infile  >> at >> id;
+			arrEvents[i] = new CancelEvent(at, id, this); //////////**
+		
+		}
+		if (EventType == 'P')
+		{
+			Infile  >> at >> id;
+			arrEvents[i] = new CancelEvent(at, id, this);
+		
+		}
+	}
+
+	Infile.close();
 }
 
 MasterNode::~MasterNode() = default;

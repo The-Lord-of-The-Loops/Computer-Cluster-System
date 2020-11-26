@@ -1,6 +1,6 @@
 #include "ArrivalEvent.h"
 
-ArrivalEvent::ArrivalEvent(int AT, int ID, ProcessType TYP, int DL, int ET, int P):Event(AT,ID)
+ArrivalEvent::ArrivalEvent(int AT, int ID, ProcessType TYP, int DL, int ET, int P, MasterNode* MN): Event(AT,ID, MN)
 {
 	this->DL = DL;
 	this->TYP = TYP;
