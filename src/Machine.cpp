@@ -1,15 +1,10 @@
 #include "Machine.h"
 
-Machine::Machine(MachineType Type, int RebootDuration, int ResponseTime)
-{
-	this->Type = Type;
-	this->RebootDuration = RebootDuration;
-	this->ResponseTime = ResponseTime;
-}
+Machine::Machine() { }
 
 void Machine::setRebootDuration(int RebootDuration)
 {
-	this->setRebootDuration = RebootDuration;
+	this->RebootDuration = RebootDuration;
 }
 
 void Machine::setRebsponseTime(int ResponseTime)

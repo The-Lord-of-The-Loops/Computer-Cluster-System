@@ -1,15 +1,16 @@
 #include "MasterNode.h"
 
-MasterNode::MasterNode(LinkedList<Machine> * MachineList, LinkedList<Process> * ProcessList,LinkedList<Event> *Events)
+MasterNode::MasterNode(string inputfile, string outputfile)
+
 {
-    this->Events = Events;
-	this->MachineList = MachineList;
-	this->ProcessList = ProcessList;
+	 ReadNecessaryData(inputfile);
+	clock = 0;
+
 }
 
 bool MasterNode::Assign(Process Process)
 {
-	Node<Machine>* p = MachineList->Head;
+	Node<Machine> *p = MachineList->Head;
 	if (Process.GetProcessType() == System)
 	{
 		while (p)
@@ -37,7 +38,7 @@ bool MasterNode::Assign(Process Process)
 				Process.SetStatus(Waiting);
 				return false;
 			}
-				p = p->getNext();
+			p = p->getNext();
 		}
 	}
 	else if (Process.GetProcessType() == interactive)
@@ -89,7 +90,6 @@ bool MasterNode::deleteProcess(Process Process)
 	return false;
 }
 
-
 bool MasterNode::Promote(Process Process)
 {
 	return false;
@@ -103,38 +103,44 @@ void MasterNode::AddtoWaitlist(Process Process)
 		InterWaitingList.enqueue(Process);
 }
 
-void MasterNode::isEmpty(bool& Running) {
-    Running = false;
-    if(ProcessList->getCount() == 0){
-        if(SysWaitingList.isEmpty() && InterWaitingList.isEmpty() && CompIntenWaitingList.isEmpty()){
-            if(Events->getCount() == 0){
-                Running = true;
-            }
-        }
-    }
-
+void MasterNode::isEmpty(bool &Running)
+{
+	Running = false;
+	if (ProcessList->getCount() == 0)
+	{
+		if (SysWaitingList.isEmpty() && InterWaitingList.isEmpty() && CompIntenWaitingList.isEmpty())
+		{
+			if (Events->getCount() == 0)
+			{
+				Running = true;
+			}
+		}
+	}
 }
 
-void MasterNode::ExecuteProcesses(int cycle, LinkedList<Process> *ToBeExecuted) {
-    if(cycle%5 == 0){
-        Node<Process>* p = ToBeExecuted->getHead();
-        //First Type
-        ArrivalEvent* AT = dynamic_cast<ArrivalEvent*>(p->getItem());
-        if(){
+void MasterNode::ExecuteProcesses(int cycle, LinkedList<Process> *ToBeExecuted)
+{
+	if (cycle % 5 == 0)
+	{
+		Node<Process> *p = ToBeExecuted->getHead();
+		//First Type
+		ArrivalEvent *AT = dynamic_cast<ArrivalEvent *>(p->getItem());
+		if ()
+		{
+		}
+		//Second Type
 
-        }
-        //Second Type
-
-        //Third Type
-
-    }
+		//Third Type
+	}
 }
 
-void MasterNode::ReadEvents(int cycle) {
-    Node<Event>* p = Events->getHead();
-    while(p){
-        ArrivalEvent* AT = dynamic_cast<ArrivalEvent>(p->getItem());
-    }
+void MasterNode::ReadNecessaryData(string infile)
+{
+	ifstream Infile;
+	Infile.open(infile);
+	Infile.open(infile);
+	Infile >> no_GP >> no_GU >> no_IO >> rsp_GP >> rsp_GU >> rsp_IO >> N >> BGP >> BGU >> BIO >> AutoP >> E;
+	//cout << " " << no_GP << " " << no_GU << " " << no_IO << " " << rsp_GP << " " << rsp_GU << " " << rsp_IO << " " << N << " " << BGP << " " << BGU << " " << BIO << " " << AutoP << " " << E;
 }
 
 MasterNode::~MasterNode() = default;

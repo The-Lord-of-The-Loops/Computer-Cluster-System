@@ -12,7 +12,7 @@ private:
 	int RebootDuration, ResponseTime;
 	bool Available;
 public:
-	Machine(MachineType Type, int RebootDuration, int ResponseTime);
+	Machine();
 
 	//setters
 	void setRebootDuration(int RebootDuration);
