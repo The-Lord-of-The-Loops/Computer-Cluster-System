@@ -18,6 +18,33 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ArrayStack.h" />
+    <ClInclude Include="ArrivalEvent.h" />
+    <ClInclude Include="CancelEvent.h" />
+    <ClInclude Include="Event.h" />
+    <ClInclude Include="LinkedList.h" />
+    <ClInclude Include="LinkedQueue.h" />
+    <ClInclude Include="Machine.h" />
+    <ClInclude Include="MasterNode.h" />
+    <ClInclude Include="Node.h" />
+    <ClInclude Include="PQ_Data.h" />
+    <ClInclude Include="PriorityQueue.h" />
+    <ClInclude Include="Process.h" />
+    <ClInclude Include="PromotEvent.h" />
+    <ClInclude Include="QueueADT.h" />
+    <ClInclude Include="StackADT.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="ArrivalEvent.cpp" />
+    <ClCompile Include="CancelEvent.cpp" />
+    <ClCompile Include="Event.cpp" />
+    <ClCompile Include="Machine.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="MasterNode.cpp" />
+    <ClCompile Include="Process.cpp" />
+    <ClCompile Include="PromotEvent.cpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <ProjectGuid>{862E875C-E5E1-41BA-8465-07EE9D6C70BF}</ProjectGuid>
@@ -137,33 +164,6 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClInclude Include="ArrayStack.h" />
-    <ClInclude Include="ArrivalEvent.h" />
-    <ClInclude Include="CancelEvent.h" />
-    <ClInclude Include="Event.h" />
-    <ClInclude Include="LinkedList.h" />
-    <ClInclude Include="LinkedQueue.h" />
-    <ClInclude Include="Machine.h" />
-    <ClInclude Include="MasterNode.h" />
-    <ClInclude Include="Node.h" />
-    <ClInclude Include="PQ_Data.h" />
-    <ClInclude Include="PriorityQueue.h" />
-    <ClInclude Include="Process.h" />
-    <ClInclude Include="PromotEvent.h" />
-    <ClInclude Include="QueueADT.h" />
-    <ClInclude Include="StackADT.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="ArrivalEvent.cpp" />
-    <ClCompile Include="CancelEvent.cpp" />
-    <ClCompile Include="Event.cpp" />
-    <ClCompile Include="Machine.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="MasterNode.cpp" />
-    <ClCompile Include="Process.cpp" />
-    <ClCompile Include="PromotEvent.cpp" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
