@@ -23,29 +23,32 @@ private:
 	unsigned int AutoP;			//number of cycles after which an interactive process is promoted to a system process
 	unsigned int E;				// total number of events
 
-	Machine *GP_Machines = new Machine[no_GP]; //array of GP Machines
-	Machine *GU_Machines = new Machine[no_GU]; //array of GU Machines
-	Machine *IO_Machines = new Machine[no_IO]; //array of IO Machines
-	Event **arrEvents = new Event *[E];
+	Machine **GP_Machines; //array of GP Machines
+	Machine **GU_Machines; //array of GU Machines
+	Machine **IO_Machines; //array of IO Machines
+
+	Event **arrEvents = new Event *[E]; // array of events pointers
+	LinkedList<Process> InExecution; // linked list of processes in execusion
+	LinkedList<Process> CompletedProcesses; // linked list of completed process
+
 
 public:
 	MasterNode(string inputfile, string outputfile);
 	void ReadNecessaryData(string infile); // Reads number of machines of each type and reboot duration ect..
+
 	void WriteResults(string outfile);
-	void ExecuteProcesses(int cycle, LinkedList<Process> *ToBeExecuted);
+	void ExecuteProcesses(Process process);
 	void PrintInfo();
+	void Printno_Av_Machines();
+	void Printno_Wa_Process();
+
 	bool Assign(Process Process);
 	bool deleteProcess(Process Process);
 	bool Promote(Process Process);
-	void AddtoWaitlist(Process Process);
-	void isEmpty(bool &Running);
+	void Operate();
 	~MasterNode();
 
-	LinkedList<Event> *Events;
-	LinkedList<Machine> *MachineList;
-	LinkedList<Process> *ProcessList;
 	PriorityQueue<Process> SysWaitingList;
 	LinkedQueue<Process> InterWaitingList;
 	LinkedQueue<Process> CompIntenWaitingList;
-	LinkedList<Process> CompletedProcesses;
 };

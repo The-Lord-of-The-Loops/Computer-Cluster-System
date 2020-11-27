@@ -18,13 +18,5 @@ int main() {
 	while (Running)
 	{
 	    cycles++;
-        //Read Events list and add processes
-        Master.ReadEvents(cycles);
-        //Read Processes and execute them
-        Master.ExecuteProcesses(cycles,ToBeExecuted);
-        //Print All info and where Draw UI will be.
-        Master.PrintInfo();
-        //Check stop condition
-        Master.isEmpty(Running);
 	}
 };

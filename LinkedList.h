@@ -653,4 +653,141 @@ public:
 
 };
 
+//Specialization
+template<>
+class LinkedList<Process>
+{
+public:
+	Node<Process>* Head;	//Pointer to the head of the list
+		//You can add tail pointer too (depending on your problem)
+	int count;	//Number of nodes in the list
+
+	LinkedList()
+	{
+		count = 0;
+		Head = nullptr;
+	}
+
+	void InsertBeg(const Process& data)
+	{
+		Node<Process>* R = new Node<Process>(data);
+		R->setNext(Head);
+		Head = R;
+		count++;
+
+	}
+
+	void InsertLast(const Process& data) {
+
+		if (Head == nullptr) {
+			InsertBeg(data);
+			return;
+		}
+		else {
+			Node<Process>* p = Head;
+			while (p->getNext()) {
+				p = p->getNext();
+			}
+			Node<Process>* R = new Node<Process>(data);
+			p->setNext(R);
+			count++;
+			return;
+
+		}
+
+	}
+
+	bool InsertSorted(Process process, int item) {
+		Node<Process>* p = Head;
+		if (p == Head && item < p->getItem().GetPriority())
+		{
+			Node<Process>* inserted = new Node<Process>(process);
+			inserted->setNext(p);
+			Head = inserted;
+			count++;
+			return true;
+		}
+		Node<Process>* R = Head;
+		while (p->getNext())
+		{
+			p = p->getNext();
+
+			if (item < p->getItem().GetPriority()) {
+				Node<Process>* inserted = new Node<Process>(process);
+				inserted->setNext(p);
+				R->setNext(inserted);
+				count++;
+				return true;
+			}
+			R = R->getNext();
+		}
+		Node<Process>* inserted = new Node<Process>(item);
+		p->setNext(inserted);
+		count++;
+		return true;
+	}
+
+	void DeleteFirst() {
+		cout << "\nDeleting the first element" << endl;
+		if (Head) {
+			Node<Process>* p = Head->getNext();
+			delete Head;
+			Head = p;
+			count--;
+		}
+		return;
+	}
+
+	bool DeleteNode(const int& value) {
+		if (Head == nullptr) {
+			return false;
+		}
+
+		if (Head->getItem().GetID() == value) {
+			DeleteFirst();
+			return true;
+		}
+		Node<Process>* p = Head;
+		Node<Process>* q = p->getNext();
+
+		while (p) {
+			if (q->getItem().GetID == value) {
+				p->setNext(q->getNext());
+				delete q;
+				count--;
+				return true;
+			}
+			p = q;
+			q = p->getNext();
+		}
+		return false;
+	}
+
+	void DeleteAll()
+	{
+		Node<Process>* P = Head;
+		while (Head)
+		{
+			P = Head->getNext();
+			delete Head;
+			Head = P;
+		}
+		count = 0;
+	}
+
+	~LinkedList()
+	{
+		DeleteAll();
+	}
+
+	bool isEmpty()
+	{
+		if (Head)
+			return false;
+		else
+			return true;
+	}
+
+};
+
 #endif
