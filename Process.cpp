@@ -34,7 +34,7 @@ this-> Priority = Priority;
 
 void Process::SetStatus(ProcessStatus Status)
 {
-    this->Status = Status
+    this->Status = Status;
 }
 
 

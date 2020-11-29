@@ -1,6 +1,6 @@
 #include "ArrivalEvent.h"
 
-ArrivalEvent::ArrivalEvent(int AT, int ID, ProcessType TYP, int DL, int ET, int P, MasterNode* MN): Event(AT,ID, MN)
+ArrivalEvent::ArrivalEvent(int AT, int ID, ProcessType TYP, int DL, int ET, int P): Event(AT,ID)
 {
 	this->DL = DL;
 	this->TYP = TYP;
@@ -8,20 +8,20 @@ ArrivalEvent::ArrivalEvent(int AT, int ID, ProcessType TYP, int DL, int ET, int 
 	this->P = P;
 }
 
-void ArrivalEvent::Execute()
+void ArrivalEvent::Execute(PriorityQueue<Process>& Sys, LinkedQueue<Process>& Inter, LinkedQueue<Process>& Comp)
 {
 	Process NewProcess(ArrivalTime, TYP, DL, ET, P);
-	AddtoWaitList(NewProcess);
+	AddtoWaitList(NewProcess, Sys, Inter, Comp);
 }
 
-void ArrivalEvent::AddtoWaitList(Process process)
+void ArrivalEvent::AddtoWaitList(Process process, PriorityQueue<Process>& Sys, LinkedQueue<Process> & Inter, LinkedQueue<Process>& Comp)
 {
 	if (process.GetProcessType() == System)
-		MN->SysWaitingList.enqueue(process, process.GetPriority());
+		Sys.enqueue(process, process.GetPriority());
 	else if (process.GetProcessType() == Interactive)
-		MN->InterWaitingList.enqueue(process);
+		Inter.enqueue(process);
 	else
-		MN->CompIntenWaitingList.enqueue(process);
+		Comp.enqueue(process);
 }
 
 

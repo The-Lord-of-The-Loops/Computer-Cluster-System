@@ -1,25 +1,29 @@
 #include "PromotEvent.h"
 
-void PromotEvent::Execute()
+PromotEvent::PromotEvent(int AT, int ID) : Event(AT, ID)
 {
-	PromotIntertoSys(ID);
 }
 
-void PromotEvent::PromotIntertoSys(int ID)
+void PromotEvent::Execute(PriorityQueue<Process>& Sys, LinkedQueue<Process>& Inter, LinkedQueue<Process>& Comp)
+{
+	PromotIntertoSys(ID, Sys, Comp);
+}
+
+void PromotEvent::PromotIntertoSys(int ID, PriorityQueue<Process>& Sys, LinkedQueue<Process>& Inter)
 {
 	Process tempProcess;
 	LinkedQueue<Process> Temp;
-	while (!MN->InterWaitingList.isEmpty())
+	while (!Inter.isEmpty())
 	{
-		MN->InterWaitingList.dequeue(tempProcess);
+		Inter.dequeue(tempProcess);
 		if (ID != tempProcess.GetID())
 			Temp.enqueue(tempProcess);
 		else
-			MN->SysWaitingList.enqueue(tempProcess, tempProcess.GetPriority());
+			Sys.enqueue(tempProcess, tempProcess.GetPriority());
 	}
 	while (!Temp.isEmpty())
 	{
 		Temp.dequeue(tempProcess);
-		MN->InterWaitingList.enqueue(tempProcess);
+		Inter.enqueue(tempProcess);
 	}
 }

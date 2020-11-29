@@ -1,13 +1,15 @@
 #pragma once
-#include "MasterNode.h"
+#include "Process.h"
+#include "PriorityQueue.h"
+#include "LinkedQueue.h"
+//#include "MasterNode.h"
 class Event{
 public:
     int ArrivalTime;
     int ID;
-    MasterNode* MN;
 
-	Event(int AT, int ID, MasterNode* MN);
-	virtual void Execute() = 0;
+	Event(int AT, int ID);
+	virtual void Execute(PriorityQueue<Process>& Sys, LinkedQueue<Process>& Inter, LinkedQueue<Process>& Comp) = 0;
 	~Event();
 	//Getters
 	int GetArrivalTime();

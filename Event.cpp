@@ -1,10 +1,9 @@
 #include "Event.h"
 
-Event::Event(int AT, int ID, MasterNode* MN)
+Event::Event(int AT, int ID)
 {
 	this->ArrivalTime = AT;
 	this->ID = ID;
-	this->MN = MN;
 }
 
 Event::~Event()

@@ -721,7 +721,7 @@ public:
 			}
 			R = R->getNext();
 		}
-		Node<Process>* inserted = new Node<Process>(item);
+		Node<Process>* inserted = new Node<Process>(process);
 		p->setNext(inserted);
 		count++;
 		return true;
@@ -751,7 +751,7 @@ public:
 		Node<Process>* q = p->getNext();
 
 		while (p) {
-			if (q->getItem().GetID == value) {
+			if (q->getItem().GetID() == value) {
 				p->setNext(q->getNext());
 				delete q;
 				count--;
