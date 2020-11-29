@@ -36,5 +36,7 @@ public:
    
    /** Destroys this queue and frees its memory. */
    virtual ~QueueADT() { }
+
+   //counts elements in the queue
 }; // end QueueADT
 #endif

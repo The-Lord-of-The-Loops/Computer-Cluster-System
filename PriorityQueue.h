@@ -9,7 +9,7 @@ class PriorityQueue
 private:
 
 	Node<PQ_Data<T>>* frontPtr;
-
+	int count = 0;
 
 public:
 
@@ -18,6 +18,7 @@ public:
 	bool enqueue(const T& newEntry, const int& priority);
 	bool dequeue(T& frntEntry);
 	bool peek(T& frntEntry)  const;
+	int GetCount();
 	PriorityQueue(const PriorityQueue<T>& LQ);
 	~PriorityQueue();
 };
@@ -34,6 +35,7 @@ public:
 		return (frontPtr == nullptr);
 		
 	}
+
 
 	template <typename T>
 	bool PriorityQueue<T>::enqueue(const T& newEntry, const int& priority)
@@ -62,6 +64,7 @@ public:
 			newNodePtr->setNext(temp->getNext());
 			temp->setNext(newNodePtr);
 		}
+		count++;
 		return true;
 	}
 
@@ -77,6 +80,7 @@ public:
 
 		// Free memory reserved for the dequeued node
 		delete nodeToDeletePtr;
+		count--;
 		return true;
 	}
 
@@ -90,6 +94,12 @@ public:
 
 	}
 
+	template<typename T>
+	inline int PriorityQueue<T>::GetCount()
+	{
+		return count;
+	}
+
 	//copy constructor
 	template <typename T>
 	PriorityQueue<T>::PriorityQueue(const PriorityQueue<T>& LQ)
@@ -101,6 +111,7 @@ public:
 			enqueue(NodePtr->getItem().getData(), NodePtr->getItem().getPriority());	//get data of each node and enqueue it in this queue 
 			NodePtr = NodePtr->getNext();
 		}
+		count = LQ.count;
 	}
 
 	template <typename T>

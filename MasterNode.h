@@ -12,6 +12,8 @@
 #include "PromotEvent.h"
 #include <fstream>
 
+using namespace std;
+
 class MasterNode
 {
 private:
@@ -27,20 +29,30 @@ private:
 	Machine **GU_Machines; //array of GU Machines
 	Machine **IO_Machines; //array of IO Machines
 
-	Event **arrEvents = new Event *[E]; // array of events pointers
+	Event **arrEvents; // array of events pointers
 	LinkedList<Process> InExecution; // linked list of processes in execusion
 	LinkedList<Process> CompletedProcesses; // linked list of completed process
 
 
 public:
 	MasterNode(string inputfile, string outputfile);
+	MasterNode();
 	void ReadNecessaryData(string infile); // Reads number of machines of each type and reboot duration ect..
 
 	void WriteResults(string outfile);
 	void ExecuteProcesses(Process process);
 	void PrintInfo();
+	
+
+	//Phase 1
+	void SimpleSimulation(string inputfile);
+	void PrintAvMacIDs();
 	void Printno_Av_Machines();
 	void Printno_Wa_Process();
+	void PrintWaProcIDs();
+	void Printno_In_Execution();
+	void PrintInExecIDs();
+
 
 	bool Assign(Process Process);
 	bool deleteProcess(Process Process);
