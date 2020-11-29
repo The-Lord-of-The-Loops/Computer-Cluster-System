@@ -2,7 +2,7 @@
 
 CancelEvent::CancelEvent(int AT, int ID) : Event(AT,ID){}
 
-void CancelEvent::deletSysProcess(int ID, PriorityQueue<Process> Sys)
+void CancelEvent::deletSysProcess(int ID, PriorityQueue<Process> &Sys)
 {
 	Process tempProcess;
 	PriorityQueue<Process> Temp;
