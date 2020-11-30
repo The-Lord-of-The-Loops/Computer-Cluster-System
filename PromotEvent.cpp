@@ -4,12 +4,12 @@ PromotEvent::PromotEvent(int AT, int ID) : Event(AT, ID)
 {
 }
 
-void PromotEvent::Execute(PriorityQueue<Process>& Sys, LinkedQueue<Process>& Inter, LinkedQueue<Process>& Comp)
+void PromotEvent::Execute(LinkedList<Process>& Sys, LinkedQueue<Process>& Inter, LinkedQueue<Process>& Comp)
 {
-	//PromotIntertoSys(ID, Sys, Comp);
+	//PromoteSystemToComputationallyIntensive(ID, Sys, Comp);
 }
 
-void PromotEvent::PromotIntertoSys(int ID, PriorityQueue<Process>& Sys, LinkedQueue<Process>& Inter)
+void PromotEvent::PromoteSystemToComputationallyIntensive(int ID, LinkedList<Process>& Sys, LinkedQueue<Process>& Inter)
 {
 	Process tempProcess;
 	LinkedQueue<Process> Temp;
@@ -19,7 +19,7 @@ void PromotEvent::PromotIntertoSys(int ID, PriorityQueue<Process>& Sys, LinkedQu
 		if (ID != tempProcess.GetID())
 			Temp.enqueue(tempProcess);
 		else
-			Sys.enqueue(tempProcess, tempProcess.GetPriority());
+			Sys.InsertSorted(tempProcess, tempProcess.GetPriority());
 	}
 	while (!Temp.isEmpty())
 	{
