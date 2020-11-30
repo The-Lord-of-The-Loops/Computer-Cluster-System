@@ -6,7 +6,7 @@ PromotEvent::PromotEvent(int AT, int ID) : Event(AT, ID)
 
 void PromotEvent::Execute(PriorityQueue<Process>& Sys, LinkedQueue<Process>& Inter, LinkedQueue<Process>& Comp)
 {
-	PromotIntertoSys(ID, Sys, Comp);
+	//PromotIntertoSys(ID, Sys, Comp);
 }
 
 void PromotEvent::PromotIntertoSys(int ID, PriorityQueue<Process>& Sys, LinkedQueue<Process>& Inter)

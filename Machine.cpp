@@ -1,5 +1,9 @@
 #include "Machine.h"
 
+Machine::Machine()
+{
+}
+
 Machine::Machine(int ID, int rsp, int N, int B)
 { 
 	this->ID = ID;
@@ -19,10 +23,10 @@ void Machine::setRebsponseTime(int ResponseTime)
 	this->ResponseTime = ResponseTime;
 }
 
-void Machine::setMachineType(MachineType Type)
+/*void Machine::setMachineType(MachineType Type)
 {
 	this->Type = Type;
-}
+}*/
 
 void Machine::setAvailability(bool available)
 {
@@ -59,10 +63,10 @@ bool Machine::isAvailable()
 	return Available;
 }
 
-MachineType Machine::getMachineType()
+/*MachineType Machine::getMachineType()
 {
 	return Type;
-}
+}*/
 
 Machine::~Machine()
 {

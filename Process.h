@@ -17,7 +17,7 @@ private:
     int DispatchLatency, ExecutionTime, Priority;
 public:
     Process();
-    Process(int ArrivalTime, ProcessType Type,int DispatchLatency, int ExecutionTime, int Priority);
+    Process(int ArrivalTime, int ID, ProcessType Type,int DispatchLatency, int ExecutionTime, int Priority);
     void operator=(const Process& process)
     {
         ArrivalTime = process.ArrivalTime;

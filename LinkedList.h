@@ -668,7 +668,7 @@ public:
 		Head = nullptr;
 	}
 
-	void InsertBeg(const Process& data)
+	void InsertBeg(const Process data)
 	{
 		Node<Process>* R = new Node<Process>(data);
 		R->setNext(Head);
@@ -677,7 +677,7 @@ public:
 
 	}
 
-	void InsertLast(const Process& data) {
+	void InsertLast(const Process data) {
 
 		if (Head == nullptr) {
 			InsertBeg(data);
@@ -738,7 +738,7 @@ public:
 		return;
 	}
 
-	bool DeleteNode(const int& value) {
+	bool DeleteNode(const int value) {
 		if (Head == nullptr) {
 			return false;
 		}

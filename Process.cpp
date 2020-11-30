@@ -4,8 +4,9 @@ Process::Process()
 {
 }
 
-Process::Process(int ArrivalTime, ProcessType Type, int DispatchLatency, int ExecutionTime, int Priority) {
+Process::Process(int ArrivalTime, int ID, ProcessType Type, int DispatchLatency, int ExecutionTime, int Priority) {
 this-> ArrivalTime = ArrivalTime;
+this->ID = ID;
 this-> Type = Type;
 this-> DispatchLatency = DispatchLatency;
 this-> ExecutionTime = ExecutionTime;

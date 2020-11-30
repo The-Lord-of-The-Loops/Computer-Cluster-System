@@ -10,7 +10,7 @@ ArrivalEvent::ArrivalEvent(int AT, int ID, ProcessType TYP, int DL, int ET, int 
 
 void ArrivalEvent::Execute(PriorityQueue<Process>& Sys, LinkedQueue<Process>& Inter, LinkedQueue<Process>& Comp)
 {
-	Process NewProcess(ArrivalTime, TYP, DL, ET, P);
+	Process NewProcess(ArrivalTime, ID, TYP, DL, ET, P);
 	AddtoWaitList(NewProcess, Sys, Inter, Comp);
 }
 
