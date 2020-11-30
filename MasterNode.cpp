@@ -242,25 +242,25 @@ void MasterNode::PrintWaProcIDs()
 	Node<Process> *p;
 	p = SysWaitingList.Head;
 	cout << "Waiting Processes: ";
-	for (int i = 0; i < SysWaitingList.count; i++)
-	{
-		process = p->getItem();
-		cout << "[ " << process.GetID() << " ]"
-			 << "  ";
-		p = p->getNext();
-	}
-	for (int i = 0; i < InterWaitingList.GetCount(); i++)
-	{
-		InterWaitingList.dequeue(process);
-		cout << "( " << process.GetID() << " )"
-			 << "  ";
-		InterWaitingList.enqueue(process);
-	}
-	for (int i = 0; i < CompIntenWaitingList.GetCount(); i++)
-	{
-		CompIntenWaitingList.dequeue(process);
-		cout << process.GetID() << "  ";
-		CompIntenWaitingList.enqueue(process);
+	if (p) {
+		for (int i = 0; i < SysWaitingList.count; i++)
+		{
+			process = p->getItem();
+			cout << "[ " << process.GetID() << " ]" << "  ";
+			p = p->getNext();
+		}
+		for (int i = 0; i < InterWaitingList.GetCount(); i++)
+		{
+			InterWaitingList.dequeue(process);
+			cout << "( " << process.GetID() << " )" << "  ";
+			InterWaitingList.enqueue(process);
+		}
+		for (int i = 0; i < CompIntenWaitingList.GetCount(); i++)
+		{
+			CompIntenWaitingList.dequeue(process);
+			cout << process.GetID() << "  ";
+			CompIntenWaitingList.enqueue(process);
+		}
 	}
 	cout << endl;
 }
