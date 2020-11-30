@@ -21,6 +21,7 @@ void PromotEvent::PromoteSystemToComputationallyIntensive(int ID, LinkedList<Pro
 			p = p->getNext();
 			delete Sys.Head;
 			Sys.Head = p;
+			Sys.count--;
 			return;
 		}
 		else if (R)
@@ -32,6 +33,7 @@ void PromotEvent::PromoteSystemToComputationallyIntensive(int ID, LinkedList<Pro
 					Inter.enqueue(R->getItem());
 					p->setNext(R->getNext());
 					delete R;
+					Sys.count--;
 					return;
 				}
 				p = R;

@@ -13,6 +13,7 @@ void CancelEvent::deletSysProcess(int ID, LinkedList<Process> &Sys)
 			p = p->getNext();
 			delete Sys.Head;
 			Sys.Head = p;
+			Sys.count--;
 			return;
 		}
 		else if(R)
@@ -23,6 +24,7 @@ void CancelEvent::deletSysProcess(int ID, LinkedList<Process> &Sys)
 				{
 					p->setNext(R->getNext());
 					delete R;
+					Sys.count--;
 					return;
 				}
 				p = R;
