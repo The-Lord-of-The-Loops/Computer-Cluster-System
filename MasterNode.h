@@ -12,10 +12,12 @@
 #include "PromotEvent.h"
 #include <fstream>
 
+using namespace std;
+
 class MasterNode
 {
 private:
-	unsigned long int cycles;	//  the clock
+	unsigned long int clock;	//  the clock
 	int no_GP, no_GU, no_IO;	// number of machines for each type
 	int rsp_GP, rsp_GU, rsp_IO; // response time for each type
 	int N;						// number of processes before rebooting
@@ -30,7 +32,7 @@ private:
 	Event **arrEvents; // array of events pointers
     int TotalNumberOfEvents;
 
-    LinkedList<Process> InExecution; // linked list of processes in execusion
+    LinkedList<Process> InExecution; // linked list of processes in exxcution
 	LinkedList<Process> CompletedProcesses; // linked list of completed process
 
 public:
