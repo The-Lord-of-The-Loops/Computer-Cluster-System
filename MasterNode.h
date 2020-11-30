@@ -52,6 +52,8 @@ public:
 	void PrintWaProcIDs();
 	void Printno_In_Execution();
 	void PrintInExecIDs();
+	void AssignAllEvents(bool &exev);
+	void ExecuteOneProcessOfEachType();
 
 
 	bool Assign(Process Process);

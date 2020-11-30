@@ -96,62 +96,20 @@ void MasterNode::SimpleSimulation(string inputfile)
 	bool Syscomp, Intercomp, compcomp;
 	Process process;
 	bool dequeued;
+
 	while (operate && nextcycle)
 	{
 		cout << "Cycle: " << clock << endl;
 		clock++;
 		exev = false;
-		//Printing to consol
-		Printno_Av_Machines();
-		PrintAvMacIDs();
-
-		Printno_Wa_Process();
-		PrintWaProcIDs();
-
-		Printno_In_Execution();
-		PrintInExecIDs();
+		//Printing to console
+        PrintInfo();
 
 		//Assigning Events
-		for (int i = 0; i < E; i++)
-		{
-			if (arrEvents[i])
-			{
-				if (arrEvents[i]->ArrivalTime == clock)
-				{
-					arrEvents[i]->Execute(SysWaitingList, InterWaitingList, CompIntenWaitingList);
-					E--;
-					for (int n = i; n < E; n++)
-					{
-						arrEvents[n] = arrEvents[n + 1];
-					}
-					arrEvents[E] = nullptr;
-					i--;
-				}
-				exev = true;
-			}
-		}
-		
-		
-		dequeued = SysWaitingList.peek(process);
-		if (dequeued)
-		{
-			SysWaitingList.dequeue(process);
-			InExecution.InsertLast(process);
-		}
+        AssignAllEvents(exev);
 
-		dequeued = InterWaitingList.peek(process);
-		if (dequeued)
-		{
-			InterWaitingList.dequeue(process);
-			InExecution.InsertLast(process);
-		}
-
-		dequeued = CompIntenWaitingList.peek(process);
-		if (dequeued)
-		{
-			CompIntenWaitingList.dequeue(process);
-			InExecution.InsertLast(process);
-		}
+        //Execute 1 of each type
+        ExecuteOneProcessOfEachType();
 		
 		p = InExecution.Head;
 		R = p;
@@ -413,7 +371,7 @@ void MasterNode::ReadNecessaryData(string infile)
 		{
 			Infile >> processtype >> at >> id >> dl >> et >> p;
 			arrEvents[i] = new ArrivalEvent(at, id, (processtype == 'S') ? System : (processtype == 'I') ? Interactive : ComputationallyIntensive, dl, et, p);
-		
+
 		}
 		else if (EventType == 'X')
 		{
@@ -439,4 +397,62 @@ MasterNode::~MasterNode()
 	SysWaitingList.~PriorityQueue();
 	InterWaitingList.~LinkedQueue();
 	CompIntenWaitingList.~LinkedQueue();
+}
+
+void MasterNode::PrintInfo() {
+    Printno_Av_Machines();
+    PrintAvMacIDs();
+
+    Printno_Wa_Process();
+    PrintWaProcIDs();
+
+    Printno_In_Execution();
+    PrintInExecIDs();
+}
+
+void MasterNode::AssignAllEvents(bool &exev) {
+    for (int i = 0; i < E; i++)
+    {
+        if (arrEvents[i])
+        {
+            if (arrEvents[i]->ArrivalTime == clock)
+            {
+                arrEvents[i]->Execute(SysWaitingList, InterWaitingList, CompIntenWaitingList);
+                E--;
+                for (int n = i; n < E; n++)
+                {
+                    arrEvents[n] = arrEvents[n + 1];
+                }
+                arrEvents[E] = nullptr;
+                i--;
+            }
+            exev = true;
+        }
+    }
+}
+
+void MasterNode::ExecuteOneProcessOfEachType() {
+    bool dequeued;
+    Process process;
+
+    dequeued = SysWaitingList.peek(process);
+    if (dequeued)
+    {
+        SysWaitingList.dequeue(process);
+        InExecution.InsertLast(process);
+    }
+
+    dequeued = InterWaitingList.peek(process);
+    if (dequeued)
+    {
+        InterWaitingList.dequeue(process);
+        InExecution.InsertLast(process);
+    }
+
+    dequeued = CompIntenWaitingList.peek(process);
+    if (dequeued)
+    {
+        CompIntenWaitingList.dequeue(process);
+        InExecution.InsertLast(process);
+    }
 };
