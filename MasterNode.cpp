@@ -85,6 +85,7 @@ bool MasterNode::Assign(Process process)
 		}
 		return false;
 	}
+	return false;
 }
 
 void MasterNode::SimpleSimulation(string inputfile)
@@ -97,7 +98,6 @@ void MasterNode::SimpleSimulation(string inputfile)
 	Node<Process>* R;
 	bool Syscomp, Intercomp, compcomp;
 	Process process;
-	bool dequeued;
 
 	while (operate && nextcycle)
 	{
