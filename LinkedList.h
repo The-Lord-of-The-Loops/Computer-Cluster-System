@@ -21,7 +21,7 @@ public:
 		Head = nullptr;
 	}
 
-	//List is being desturcted ==> delete all items in the list
+	//List is being destructed ==> delete all items in the list
 	~LinkedList()
 	{
 		DeleteAll();
@@ -649,8 +649,6 @@ public:
 				p = p->getNext();
 		} 
 	}
-
-
 };
 
 //Specialization
@@ -692,12 +690,15 @@ public:
 			p->setNext(R);
 			count++;
 			return;
-
 		}
-
 	}
 
 	bool InsertSorted(Process process, int item) {
+	    if(isEmpty()){
+	        InsertBeg(process);
+            return true;
+	    }
+
 		Node<Process>* p = Head;
 		if (p == Head && item < p->getItem().GetPriority())
 		{

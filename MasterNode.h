@@ -28,9 +28,10 @@ private:
 	Machine *IO_Machines = new Machine[no_IO]; //array of IO Machines
 
 	Event **arrEvents; // array of events pointers
-	LinkedList<Process> InExecution; // linked list of processes in execusion
-	LinkedList<Process> CompletedProcesses; // linked list of completed process
+    int TotalNumberOfEvents;
 
+    LinkedList<Process> InExecution; // linked list of processes in execusion
+	LinkedList<Process> CompletedProcesses; // linked list of completed process
 
 public:
 	MasterNode(string inputfile, string outputfile);
@@ -40,7 +41,6 @@ public:
 	void WriteResults(string outfile);
 	void ExecuteProcesses(Process process);
 	void PrintInfo();
-	
 
 	//Phase 1
 	void SimpleSimulation(string inputfile);
@@ -50,9 +50,8 @@ public:
 	void PrintWaProcIDs();
 	void Printno_In_Execution();
 	void PrintInExecIDs();
-	void AssignAllEvents(bool &exev);
+	void ExecuteEvents(bool &exev);
 	void ExecuteOneProcessOfEachType();
-
 
 	bool Assign(Process Process);
 	bool deleteProcess(Process Process);
@@ -60,7 +59,9 @@ public:
 	void Operate();
 	~MasterNode();
 
-	PriorityQueue<Process> SysWaitingList;
+	LinkedList<Process> SysWaitingList;
+	//To Sorted linked list
+
 	LinkedQueue<Process> InterWaitingList;
 	LinkedQueue<Process> CompIntenWaitingList;
 };
