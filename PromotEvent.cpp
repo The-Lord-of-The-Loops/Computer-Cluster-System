@@ -6,7 +6,7 @@ PromotEvent::PromotEvent(int AT, int ID) : Event(AT, ID)
 
 void PromotEvent::Execute(LinkedList<Process>& Sys, LinkedQueue<Process>& Inter, LinkedQueue<Process>& Comp)
 {
-	//PromoteSystemToComputationallyIntensive(ID, Sys, Comp);
+	PromoteSystemToComputationallyIntensive(ID, Sys, Comp);
 }
 
 void PromotEvent::PromoteSystemToComputationallyIntensive(int ID, LinkedList<Process>& Sys, LinkedQueue<Process>& Inter)

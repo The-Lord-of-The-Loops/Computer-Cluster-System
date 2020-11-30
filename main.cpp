@@ -4,6 +4,8 @@
 int main(){
 
 	MasterNode master;
-	master.SimpleSimulation("test2.txt");
+	cout << "Cycle: " << 0 << endl;
+	master.PrintInfo();
+	master.SimpleSimulation("test3.txt");
 	return 0;
 };

@@ -91,84 +91,39 @@ bool MasterNode::Assign(Process process)
 void MasterNode::SimpleSimulation(string inputfile)
 {
 	ReadNecessaryData(inputfile);
+	int i = 0;
 	bool operate = true;
 	bool nextcycle = true;
 	bool exev;
-	Node<Process>* p;
-	Node<Process>* R;
-	bool Syscomp, Intercomp, compcomp;
-	Process process;
+	
 
 	while (operate && nextcycle)
 	{
-
-		cout << "Cycle: " << clock << endl;
 		clock++;
+		i++;
 		exev = false;
-
-		//Printing to console
-        PrintInfo();
 
 		//Assigning Events
         ExecuteEvents(exev);
 
         //Execute 1 of each type
-       // ExecuteOneProcessOfEachType();
+       ExecuteOneProcessOfEachType();
 		
-		p = InExecution.Head;
-		R = p;
-		if(p)
-			R = p->getNext();
-		Syscomp = false; Intercomp = false; compcomp = false;
+		
 		if (clock % 5 == 0)
 		{
-			while (p)
-			{
-				process = p->getItem();
-				if (process.GetProcessType()== System && !Syscomp)
-				{
-					CompletedProcesses.InsertLast(process);
-					p->setNext(R->getNext());
-					p = R;
-					if(R)
-					R = p->getNext();
-					Syscomp = true;
-				}
-				else if (process.GetProcessType() == Interactive && !Intercomp)
-				{
-					CompletedProcesses.InsertLast(process);
-					p->setNext(R->getNext());
-					p = R;
-					if(R)
-					R = p->getNext();
-					Intercomp = true;
-				}
-				else if (process.GetProcessType() == ComputationallyIntensive && !compcomp)
-				{
-					CompletedProcesses.InsertLast(process);
-					p->setNext(R->getNext());
-					p = R;
-					if(R)
-					R = p->getNext();
-					compcomp = true;
-				}
-				if (Syscomp && Intercomp && compcomp)
-					break;
-				if (!Syscomp || !Intercomp || !compcomp)
-				{
-					p = p->getNext();
-					if(R)
-					R = R->getNext();
-				}
-			}
+			CompleteEach5Cycles();
 		}
+		cout << "Cycle: " << i << endl;
+		//Printing to console
+		PrintInfo();
+
         //Checking for operations
         if (!exev && SysWaitingList.isEmpty() && InterWaitingList.isEmpty() && CompIntenWaitingList.isEmpty() && InExecution.isEmpty())
         {
             operate = false;
             break;
         }
-		cout << endl;
 	}
 }
 
@@ -353,7 +308,6 @@ void MasterNode::ReadNecessaryData(string infile)
 	ifstream Infile;
 	Infile.open(infile);
 	Infile >> no_GP >> no_GU >> no_IO >> rsp_GP >> rsp_GU >> rsp_IO >> N >> BGP >> BGU >> BIO >> AutoP >> E;
-	TotalNumberOfEvents = E;
 	arrEvents = new Event*[E];
     //cout << " " << no_GP << " " << no_GU << " " << no_IO << " " << rsp_GP << " " << rsp_GU << " " << rsp_IO << " " << N << " " << BGP << " " << BGU << " " << BIO << " " << AutoP << " " << E;
 	//creating Machines
@@ -402,11 +356,12 @@ void MasterNode::ReadNecessaryData(string infile)
 
 MasterNode::~MasterNode()
 {
-	InExecution.~LinkedList();
-	CompletedProcesses.~LinkedList();
-	SysWaitingList.~LinkedList();
-	InterWaitingList.~LinkedQueue();
-	CompIntenWaitingList.~LinkedQueue();
+	
+	for (int i = 0; i < E; i++)
+	{
+		delete arrEvents[i];
+	}
+	delete[] arrEvents;
 }
 
 void MasterNode::PrintInfo() {
@@ -429,14 +384,16 @@ void MasterNode::ExecuteEvents(bool &exev) {
            cout << arrEvents[i]->ID << " , ";
             if (arrEvents[i]->ArrivalTime == clock)
             {
-                    arrEvents[i]->Execute(SysWaitingList, InterWaitingList, CompIntenWaitingList);
-
-                delete arrEvents[i];
-                arrEvents[i] = nullptr;
+				PromotEvent* test = dynamic_cast<PromotEvent*> (arrEvents[i]);
+				if (!test)
+					arrEvents[i]->Execute(SysWaitingList, InterWaitingList, CompIntenWaitingList);
+				delete arrEvents[i];
+				arrEvents[i] = nullptr;
             }
             exev = true;
         }
     }
+	cout << endl;
 	cout << endl;
 }
 
@@ -463,4 +420,99 @@ void MasterNode::ExecuteOneProcessOfEachType() {
         CompIntenWaitingList.dequeue(process);
         InExecution.InsertLast(process);
     }
-};
+}
+void MasterNode::CompleteEach5Cycles()
+{
+
+	Node<Process>* p;
+	Node<Process>* R;
+	bool Syscomp, Intercomp, compcomp;
+	Process process;
+	p = InExecution.Head;
+	R = p;
+	Syscomp = false; Intercomp = false; compcomp = false;
+
+	if (!InExecution.isEmpty())
+	{
+		bool completed;
+		while (!Syscomp || !Intercomp || !compcomp)
+		{
+			if (!p)
+				return;
+			completed = false;
+			process = p->getItem();
+			if (process.GetProcessType() == System && !Syscomp)
+			{
+				CompletedProcesses.InsertLast(process);
+				p = p->getNext();
+				InExecution.DeleteFirst();
+				Syscomp = true;
+				completed = true;
+			}
+			else if (process.GetProcessType() == Interactive && !Intercomp)
+			{
+				CompletedProcesses.InsertLast(process);
+				p = p->getNext();
+				InExecution.DeleteFirst();
+				Intercomp = true;
+				completed = true;
+			}
+			else if (process.GetProcessType() == ComputationallyIntensive && !compcomp)
+			{
+				CompletedProcesses.InsertLast(process);
+				p = p->getNext();
+				InExecution.DeleteFirst();
+				compcomp = true;
+				completed = true;
+			}
+			if (!completed)
+				break;
+			else if (Syscomp && Intercomp && compcomp)
+				return;
+		}
+
+		R = p->getNext();
+		while (!Syscomp || !Intercomp || !compcomp)
+		{
+			if (!R)
+				return;
+			completed = false;
+			process = R->getItem();
+			if (process.GetProcessType() == System && !Syscomp)
+			{
+				CompletedProcesses.InsertLast(process);
+				p->setNext(R->getNext());
+				delete R;
+				R = p->getNext();
+				Syscomp = true;
+				completed = true;
+			}
+			else if (process.GetProcessType() == Interactive && !Intercomp)
+			{
+				CompletedProcesses.InsertLast(process);
+				p->setNext(R->getNext());
+				delete R;
+				R = p->getNext();
+				Intercomp = true;
+				completed = true;
+			}
+			else if (process.GetProcessType() == ComputationallyIntensive && !compcomp)
+			{
+				CompletedProcesses.InsertLast(process);
+				p->setNext(R->getNext());
+				delete R;
+				R = p->getNext();
+				compcomp = true;
+				completed = true;
+			}
+			if (!completed)
+			{
+				p = p->getNext();
+				R = R->getNext();
+			}
+			else if (Syscomp && Intercomp && compcomp)
+				return;
+		}
+	}
+}
+;

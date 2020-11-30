@@ -30,7 +30,6 @@ private:
 	Machine *IO_Machines = new Machine[no_IO]; //array of IO Machines
 
 	Event **arrEvents; // array of events pointers
-    int TotalNumberOfEvents;
 
     LinkedList<Process> InExecution; // linked list of processes in exxcution
 	LinkedList<Process> CompletedProcesses; // linked list of completed process
@@ -54,6 +53,7 @@ public:
 	void PrintInExecIDs();
 	void ExecuteEvents(bool &exev);
 	void ExecuteOneProcessOfEachType();
+	void CompleteEach5Cycles();
 
 	bool Assign(Process Process);
 	bool deleteProcess(Process Process);
