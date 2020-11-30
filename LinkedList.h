@@ -700,7 +700,7 @@ public:
 	    }
 
 		Node<Process>* p = Head;
-		if (p == Head && item < p->getItem().GetPriority())
+		if (p == Head && item > p->getItem().GetPriority())
 		{
 			Node<Process>* inserted = new Node<Process>(process);
 			inserted->setNext(p);
@@ -713,7 +713,7 @@ public:
 		{
 			p = p->getNext();
 
-			if (item < p->getItem().GetPriority()) {
+			if (item > p->getItem().GetPriority()) {
 				Node<Process>* inserted = new Node<Process>(process);
 				inserted->setNext(p);
 				R->setNext(inserted);
@@ -729,7 +729,7 @@ public:
 	}
 
 	void DeleteFirst() {
-		cout << "\nDeleting the first element" << endl;
+		//cout << "\nDeleting the first element" << endl;
 		if (Head) {
 			Node<Process>* p = Head->getNext();
 			delete Head;

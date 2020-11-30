@@ -11,19 +11,32 @@ void PromotEvent::Execute(LinkedList<Process>& Sys, LinkedQueue<Process>& Inter,
 
 void PromotEvent::PromoteSystemToComputationallyIntensive(int ID, LinkedList<Process>& Sys, LinkedQueue<Process>& Inter)
 {
-	Process tempProcess;
-	LinkedQueue<Process> Temp;
-	while (!Inter.isEmpty())
+	if (!Sys.isEmpty())
 	{
-		Inter.dequeue(tempProcess);
-		if (ID != tempProcess.GetID())
-			Temp.enqueue(tempProcess);
-		else
-			Sys.InsertSorted(tempProcess, tempProcess.GetPriority());
-	}
-	while (!Temp.isEmpty())
-	{
-		Temp.dequeue(tempProcess);
-		Inter.enqueue(tempProcess);
+		Node<Process>* p = Sys.Head;
+		Node<Process>* R = p->getNext();
+		if (p->getItem().GetID() == ID)
+		{
+			Inter.enqueue(p->getItem());
+			p = p->getNext();
+			delete Sys.Head;
+			Sys.Head = p;
+			return;
+		}
+		else if (R)
+		{
+			while (R)
+			{
+				if (R->getItem().GetID() == ID)
+				{
+					Inter.enqueue(R->getItem());
+					p->setNext(R->getNext());
+					delete R;
+					return;
+				}
+				p = R;
+				R = R->getNext();
+			}
+		}
 	}
 }
