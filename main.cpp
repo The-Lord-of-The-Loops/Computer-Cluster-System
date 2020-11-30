@@ -4,6 +4,6 @@
 int main(){
 
 	MasterNode master;
-	master.SimpleSimulation("test.txt");
+	master.SimpleSimulation("../test.txt");
 	return 0;
 };
