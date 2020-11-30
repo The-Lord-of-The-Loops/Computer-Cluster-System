@@ -1,14 +1,16 @@
 #include "MasterNode.h"
 
+using namespace std;
+
 MasterNode::MasterNode(string inputfile, string outputfile)
 {
 	ReadNecessaryData(inputfile);
-	clock = 0;
+	cycles = 0;
 }
 
 MasterNode::MasterNode()
 {
-	clock = 0;
+	cycles = 0;
 }
 
 bool MasterNode::Assign(Process process)
@@ -98,8 +100,8 @@ void MasterNode::SimpleSimulation(string inputfile)
 	bool dequeued;
 	while (operate && nextcycle)
 	{
-		cout << "Cycle: " << clock << endl;
-		clock++;
+		cout << "Cycle: " << cycles << endl;
+		cycles++;
 		exev = false;
 		//Printing to consol
 		Printno_Av_Machines();
@@ -116,7 +118,7 @@ void MasterNode::SimpleSimulation(string inputfile)
 		{
 			if (arrEvents[i])
 			{
-				if (arrEvents[i]->ArrivalTime == clock)
+				if (arrEvents[i]->ArrivalTime == cycles)
 				{
 					arrEvents[i]->Execute(SysWaitingList, InterWaitingList, CompIntenWaitingList);
 					E--;
@@ -158,7 +160,7 @@ void MasterNode::SimpleSimulation(string inputfile)
 		if(p)
 			R = p->getNext();
 		Syscomp = false; Intercomp = false; compcomp = false;
-		if (clock % 5 == 0)
+		if (cycles % 5 == 0)
 		{
 			while (p)
 			{
@@ -336,11 +338,11 @@ void MasterNode::Operate()
 
 	while (operate)
 	{
-		clock++;
+		cycles++;
 		//Assigning Events
 		for (int i = 0; i < E; i++)
 		{
-			if (arrEvents[i]->ArrivalTime == clock)
+			if (arrEvents[i]->ArrivalTime == cycles)
 				arrEvents[i]->Execute(SysWaitingList,InterWaitingList, CompIntenWaitingList);
 		}
 
