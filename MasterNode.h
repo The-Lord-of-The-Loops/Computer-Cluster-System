@@ -21,18 +21,18 @@ private:
 	int no_GP, no_GU, no_IO;	// number of machines for each type
 	int rsp_GP, rsp_GU, rsp_IO; // response time for each type
 	int N;						// number of processes before rebooting
-	int BGP, BGU, BIO; // reboot duration for each type in cycles
-	int AutoP;			//number of cycles after which an interactive process is promoted to a system process
-	int E;				// total number of events
+	int BGP, BGU, BIO;			// reboot duration for each type in cycles
+	int AutoP;					//number of cycles after which an interactive process is promoted to a system process
+	int E;						// total number of events
 
 	Machine *GP_Machines = new Machine[no_GP]; //array of GP Machines
 	Machine *GU_Machines = new Machine[no_GU]; //array of GU Machines
 	Machine *IO_Machines = new Machine[no_IO]; //array of IO Machines
 
 	Event **arrEvents; // array of events pointers
-    int TotalNumberOfEvents;
+	int TotalNumberOfEvents;
 
-    LinkedList<Process> InExecution; // linked list of processes in exxcution
+	LinkedList<Process> InExecution;		// linked list of processes in exxcution
 	LinkedList<Process> CompletedProcesses; // linked list of completed process
 
 public:

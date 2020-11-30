@@ -1,6 +1,6 @@
 #include "CancelEvent.h"
 
-CancelEvent::CancelEvent(int AT, int ID) : Event(AT,ID){}
+CancelEvent::CancelEvent(int AT, int ID) : Event(AT, ID) {}
 
 void CancelEvent::deletSysProcess(int ID, LinkedList<Process> &Sys)
 {
@@ -19,7 +19,7 @@ void CancelEvent::deletSysProcess(int ID, LinkedList<Process> &Sys)
 	}
 }
 
-void CancelEvent::Execute(LinkedList<Process>& Sys, LinkedQueue<Process>& Inter, LinkedQueue<Process>& Comp)
+void CancelEvent::Execute(LinkedList<Process> &Sys, LinkedQueue<Process> &Inter, LinkedQueue<Process> &Comp)
 {
 	deletSysProcess(ID, Sys);
 }

@@ -1,6 +1,6 @@
 #include "ArrivalEvent.h"
 
-ArrivalEvent::ArrivalEvent(int AT, int ID, ProcessType TYP, int DL, int ET, int P): Event(AT,ID)
+ArrivalEvent::ArrivalEvent(int AT, int ID, ProcessType TYP, int DL, int ET, int P) : Event(AT, ID)
 {
 	this->DL = DL;
 	this->TYP = TYP;
@@ -8,13 +8,13 @@ ArrivalEvent::ArrivalEvent(int AT, int ID, ProcessType TYP, int DL, int ET, int 
 	this->P = P;
 }
 
-void ArrivalEvent::Execute(LinkedList<Process>& Sys, LinkedQueue<Process>& Inter, LinkedQueue<Process>& Comp)
+void ArrivalEvent::Execute(LinkedList<Process> &Sys, LinkedQueue<Process> &Inter, LinkedQueue<Process> &Comp)
 {
 	Process NewProcess(ArrivalTime, ID, TYP, DL, ET, P);
 	AddtoWaitList(NewProcess, Sys, Inter, Comp);
 }
 
-void ArrivalEvent::AddtoWaitList(Process process, LinkedList<Process>& Sys, LinkedQueue<Process> & Inter, LinkedQueue<Process>& Comp)
+void ArrivalEvent::AddtoWaitList(Process process, LinkedList<Process> &Sys, LinkedQueue<Process> &Inter, LinkedQueue<Process> &Comp)
 {
 	if (process.GetProcessType() == System)
 		Sys.InsertSorted(process, process.GetPriority());
@@ -23,5 +23,3 @@ void ArrivalEvent::AddtoWaitList(Process process, LinkedList<Process>& Sys, Link
 	else
 		Comp.enqueue(process);
 }
-
-

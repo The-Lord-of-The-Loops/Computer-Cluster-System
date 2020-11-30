@@ -1,24 +1,28 @@
 #pragma once
-enum ProcessType{
+enum ProcessType
+{
     System,
     Interactive,
     ComputationallyIntensive
 };
-enum ProcessStatus {
+enum ProcessStatus
+{
     Complete,
     Waiting,
     Inprocess
 };
-class Process {
+class Process
+{
 private:
-    int ArrivalTime , ID;
+    int ArrivalTime, ID;
     ProcessType Type;
     ProcessStatus Status;
     int DispatchLatency, ExecutionTime, Priority;
+
 public:
     Process();
-    Process(int ArrivalTime, int ID, ProcessType Type,int DispatchLatency, int ExecutionTime, int Priority);
-    void operator=(const Process& process)
+    Process(int ArrivalTime, int ID, ProcessType Type, int DispatchLatency, int ExecutionTime, int Priority);
+    void operator=(const Process &process)
     {
         ArrivalTime = process.ArrivalTime;
         Type = process.Type;
@@ -43,7 +47,6 @@ public:
     int GetPriority();
     int GetID();
     ProcessStatus getStatus();
-    
 
     ~Process();
 };

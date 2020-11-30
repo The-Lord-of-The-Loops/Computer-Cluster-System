@@ -5,7 +5,7 @@ Machine::Machine()
 }
 
 Machine::Machine(int ID, int rsp, int N, int B)
-{ 
+{
 	this->ID = ID;
 	ResponseTime = rsp;
 	RebootDuration = B;

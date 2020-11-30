@@ -12,6 +12,7 @@ private:
 	//MachineType Type;
 	int RebootDuration, ResponseTime, N_bresp;
 	bool Available;
+
 public:
 	//Machine();
 	Machine();
