@@ -9,6 +9,7 @@ class PriorityQueue
 private:
 
 	Node<PQ_Data<T>>* frontPtr;
+	int count;
 
 
 public:
@@ -18,14 +19,17 @@ public:
 	bool enqueue(const T& newEntry, const int& priority);
 	bool dequeue(T& frntEntry);
 	bool peek(T& frntEntry)  const;
-	PriorityQueue(const PriorityQueue<T>& LQ);
+	PriorityQueue(const PriorityQueue<T>& PQ);
 	~PriorityQueue();
+
+	int getCount() const;
 };
 
 // constructor
 	template <typename T>
 	PriorityQueue<T>::PriorityQueue() {
 		frontPtr = nullptr;
+		count = 0;
 	}
 
 	template <typename T>
@@ -57,11 +61,12 @@ public:
 			{
 				temp = temp->getNext();
 			}
-			if (temp->getNext()->getItem().getPriority() == priority)
+			if (temp->getNext() && temp->getNext()->getItem().getPriority() == priority)
 				temp = temp->getNext();
 			newNodePtr->setNext(temp->getNext());
 			temp->setNext(newNodePtr);
 		}
+		count++;
 		return true;
 	}
 
@@ -77,6 +82,7 @@ public:
 
 		// Free memory reserved for the dequeued node
 		delete nodeToDeletePtr;
+		count--;
 		return true;
 	}
 
@@ -92,10 +98,11 @@ public:
 
 	//copy constructor
 	template <typename T>
-	PriorityQueue<T>::PriorityQueue(const PriorityQueue<T>& LQ)
+	PriorityQueue<T>::PriorityQueue(const PriorityQueue<T>& PQ)
 	{
 		frontPtr = nullptr;
-		Node<PQ_Data<T>>* NodePtr = LQ.frontPtr;	//start at the front node in LQ
+		count = 0;
+		Node<PQ_Data<T>>* NodePtr = PQ.frontPtr;	//start at the front node in PQ
 		while (NodePtr)
 		{
 			enqueue(NodePtr->getItem().getData(), NodePtr->getItem().getPriority());	//get data of each node and enqueue it in this queue 
@@ -110,3 +117,6 @@ public:
 
 	}
 
+	int PriorityQueue<T>::getCount() {
+		return count;
+	}
