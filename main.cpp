@@ -4,6 +4,7 @@
 int main()
 {
 
-	MasterNode master("test.txt", "output.txt");
-	//master.SimpleSimulation("test.txt");
+	MasterNode master;
+	master.SimpleSimulation("test2.txt");
+	return 0;
 };

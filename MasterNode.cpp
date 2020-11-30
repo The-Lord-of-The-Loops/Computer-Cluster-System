@@ -101,13 +101,10 @@ void MasterNode::SimpleSimulation(string inputfile)
 
 	while (operate && nextcycle)
 	{
-		if (clock == 20)
-		{
-			cout << "Debug" << endl;
-		}
 		cout << "Cycle: " << clock << endl;
 		clock++;
 		exev = false;
+
 		//Printing to console
 		PrintInfo();
 
@@ -117,6 +114,9 @@ void MasterNode::SimpleSimulation(string inputfile)
 		//Execute 1 of each type
 		ExecuteOneProcessOfEachType();
 
+        //Execute 1 of each type
+       // ExecuteOneProcessOfEachType();
+		
 		p = InExecution.Head;
 		R = p;
 		if (p)
@@ -132,7 +132,7 @@ void MasterNode::SimpleSimulation(string inputfile)
 				if (process.GetProcessType() == System && !Syscomp)
 				{
 					CompletedProcesses.InsertLast(process);
-					InExecution.DeleteNode(p->getItem().GetID());
+					p->setNext(R->getNext());
 					p = R;
 					if (R)
 						R = p->getNext();
@@ -141,7 +141,7 @@ void MasterNode::SimpleSimulation(string inputfile)
 				else if (process.GetProcessType() == Interactive && !Intercomp)
 				{
 					CompletedProcesses.InsertLast(process);
-					InExecution.DeleteNode(p->getItem().GetID());
+					p->setNext(R->getNext());
 					p = R;
 					if (R)
 						R = p->getNext();
@@ -150,7 +150,7 @@ void MasterNode::SimpleSimulation(string inputfile)
 				else if (process.GetProcessType() == ComputationallyIntensive && !compcomp)
 				{
 					CompletedProcesses.InsertLast(process);
-					InExecution.DeleteNode(p->getItem().GetID());
+					p->setNext(R->getNext());
 					p = R;
 					if (R)
 						R = p->getNext();
@@ -158,7 +158,7 @@ void MasterNode::SimpleSimulation(string inputfile)
 				}
 				if (Syscomp && Intercomp && compcomp)
 					break;
-				if (!Syscomp && !Intercomp && !compcomp)
+				if (!Syscomp || !Intercomp || !compcomp)
 				{
 					p = p->getNext();
 					if (R)
@@ -166,12 +166,13 @@ void MasterNode::SimpleSimulation(string inputfile)
 				}
 			}
 		}
-		//Checking for operations
-		if (!exev && SysWaitingList.isEmpty() && InterWaitingList.isEmpty() && CompIntenWaitingList.isEmpty() && InExecution.isEmpty())
-		{
-			operate = false;
-			break;
-		}
+        //Checking for operations
+        if (!exev && SysWaitingList.isEmpty() && InterWaitingList.isEmpty() && CompIntenWaitingList.isEmpty() && InExecution.isEmpty())
+        {
+            operate = false;
+            break;
+        }
+		cout << endl;
 	}
 }
 
@@ -435,27 +436,24 @@ void MasterNode::PrintInfo()
 	PrintInExecIDs();
 }
 
-void MasterNode::ExecuteEvents(bool &exev)
-{
-	for (int i = 0; i < TotalNumberOfEvents; i++)
-	{
-		if (arrEvents[i])
-		{
-			cout << arrEvents[i]->ID << endl;
-			if (arrEvents[i]->ArrivalTime == clock)
-			{
-				PromotEvent *Test = dynamic_cast<PromotEvent *>(arrEvents[i]);
-				if (!Test)
-				{
-					arrEvents[i]->Execute(SysWaitingList, InterWaitingList, CompIntenWaitingList);
-				}
-				delete arrEvents[i];
-				arrEvents[i] = nullptr;
-				E--;
-			}
-			exev = true;
-		}
-	}
+void MasterNode::ExecuteEvents(bool &exev) {
+	cout << "Events yet to be executed: ";
+	for (int i = 0; i < E; i++)
+    {
+        if (arrEvents[i])
+        {
+           cout << arrEvents[i]->ID << " , ";
+            if (arrEvents[i]->ArrivalTime == clock)
+            {
+                    arrEvents[i]->Execute(SysWaitingList, InterWaitingList, CompIntenWaitingList);
+
+                delete arrEvents[i];
+                arrEvents[i] = nullptr;
+            }
+            exev = true;
+        }
+    }
+	cout << endl;
 }
 
 void MasterNode::ExecuteOneProcessOfEachType()
