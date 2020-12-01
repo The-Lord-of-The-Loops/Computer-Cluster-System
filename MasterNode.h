@@ -31,7 +31,9 @@ private:
 
 	Event **arrEvents; // array of events pointers
 
-    LinkedList<Process> InExecution; // linked list of processes in exxcution
+    LinkedList<Process> SysInExecution; // linked list of processes in exxcution
+	LinkedList<Process> InterInExecution; // linked list of processes in exxcution
+	LinkedList<Process> CompInExecution; // linked list of processes in exxcution
 	LinkedList<Process> CompletedProcesses; // linked list of completed process
 
 public:
@@ -53,12 +55,13 @@ public:
 	void PrintInExecIDs();
 	void ExecuteEvents(bool &exev);
 	void ExecuteOneProcessOfEachType();
-	void CompleteEach5Cycles();
+	//void CompleteEach5Cycles();
 
 	bool Assign(Process Process);
 	bool deleteProcess(Process Process);
 	bool Promote(Process Process);
 	void Operate();
+	bool IsExecuting();
 	~MasterNode();
 
 	LinkedList<Process> SysWaitingList;
