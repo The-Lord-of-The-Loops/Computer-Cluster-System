@@ -60,8 +60,9 @@ bool PriorityQueue<T>::enqueue(const T& newEntry, const int& priority)
 		{
 			temp = temp->getNext();
 		}
-		if (temp->getNext() && temp->getNext()->getItem().getPriority() == priority) // if new element has the same priority as an existing element, we use "first come first served"
+		if (temp->getNext() && temp->getNext()->getItem().getPriority() == priority) {// if new element has the same priority as an existing element, we use "first come first served"
 			temp = temp->getNext();
+		}
 		newNodePtr->setNext(temp->getNext());
 		temp->setNext(newNodePtr);
 	}
