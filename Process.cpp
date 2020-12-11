@@ -11,6 +11,7 @@ this-> Type = Type;
 this-> DispatchLatency = DispatchLatency;
 this-> ExecutionTime = ExecutionTime;
 this-> Priority = Priority;
+Status = Waiting;
 }
 
 void Process::SetArrivalTime(int ArrivalTime) {

@@ -7,7 +7,8 @@ enum ProcessType{
 enum ProcessStatus {
     Complete,
     Waiting,
-    Inprocess
+    Dispatched,
+    InExecution
 };
 class Process {
 private:

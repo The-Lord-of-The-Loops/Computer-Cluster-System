@@ -58,7 +58,7 @@ public:
 	void Printno_In_Execution();
 	void PrintInExecIDs();
 	void ExecuteEvents(bool &exev);
-	void ExecuteOneProcessOfEachType();
+	//void ExecuteOneProcessOfEachType();
 	//void CompleteEach5Cycles();
 
 	//Zebala
@@ -66,8 +66,14 @@ public:
 	bool Promote(Process Process);
 
 	//Underconstruction
+	void complete();
+	bool complete(Process process);
+	bool complete(Machine machine);
+	void dispatch();
+	bool dispatch(Process process);
 	void execute();
-	bool Assign(Process Process);
+	bool execute(Process process);
+	bool Assign(Process process);
 	void Operate();
 	bool IsExecuting();
 	~MasterNode();

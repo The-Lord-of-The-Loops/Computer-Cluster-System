@@ -13,57 +13,251 @@ MasterNode::MasterNode()
 	clock = 0;
 }
 
+void MasterNode::complete()
+{
+	bool completed = true;
+	Machine machine;
+	Process process;
+	while (completed)
+	{
+		if (!SysInExecution.isEmpty()) {
+			process = SysInExecution.Head->getItem();
+			completed = complete(process);
+		}
+		else
+			completed = false;
+	}
+
+	completed = true;
+	while (completed)
+	{
+		if (!InterInExecution.isEmpty()) {
+			process = InterInExecution.Head->getItem();
+			completed = complete(process);
+		}
+		else
+			completed = false;
+	}
+
+	completed = true;
+	while (completed)
+	{
+		if (!CompInExecution.isEmpty()) {
+			process = CompInExecution.Head->getItem();
+			completed = complete(process);
+		}
+		else
+			completed = false;
+	}
+	
+	completed = true;
+	while (completed)
+	{
+		if (!EX_GP_Machines.isEmpty()) {
+			EX_GP_Machines.peek(machine);
+			completed = complete(machine);
+		}
+		else
+			completed = false;
+	}
+
+	completed = true;
+	while (completed)
+	{
+		if (!EX_GU_Machines.isEmpty()) {
+			EX_GU_Machines.peek(machine);
+			completed = complete(machine);
+		}
+		else
+			completed = false;
+	}
+
+	completed = true;
+	while (completed)
+	{
+		if (!EX_IO_Machines.isEmpty()) {
+			EX_IO_Machines.peek(machine);
+			completed = complete(machine);
+		}
+		else
+			completed = false;
+	}
+}
+
+bool MasterNode::complete(Process process)
+{
+	bool completed = false;
+	Process process;
+	if (process.GetArrivalTime() + process.WT + process.GetExecutionTime() == clock)
+	{
+		switch (process.GetProcessType())
+		{
+		case System:
+			process = SysInExecution.Head->getItem();
+			CompletedProcesses.InsertLast(process);
+			SysInExecution.DeleteFirst();
+			break;
+
+		case Interactive:
+			process = InterInExecution.Head->getItem();
+			CompletedProcesses.InsertLast(process);
+			InterInExecution.DeleteFirst();
+			break;
+
+		case ComputationallyIntensive:
+			process = CompInExecution.Head->getItem();
+			CompletedProcesses.InsertLast(process);
+			CompInExecution.DeleteFirst();
+			break;
+
+		}
+
+		process.SetStatus(Complete);
+		completed = true;
+	}
+	return completed;
+}
+
+bool MasterNode::complete(Machine machine)
+{
+	Machine machine;
+	bool completed = false;
+	if (machine.inextime == clock)
+	{
+		switch (machine.getMachineType()) {
+		case GP:
+			EX_GP_Machines.dequeue(machine);
+			AV_GP_Machines.enqueue(machine, machine.getResponseTime());
+			break;
+
+		case GU:
+			EX_GU_Machines.dequeue(machine);
+			AV_GU_Machines.enqueue(machine, machine.getResponseTime());
+			break;
+
+		case IO:
+			EX_IO_Machines.dequeue(machine);
+			AV_IO_Machines.enqueue(machine, machine.getResponseTime());
+			break;
+		}
+		completed = true;
+	}
+	return completed;
+}
+
+void MasterNode::dispatch()
+{
+	bool dispatched = true;
+	Process process;
+	Node<Process>* p;
+
+	p = SysWaitingList.Head;
+	while (dispatched && p)
+	{
+			process = p->getItem();
+			dispatched = dispatch(process);
+			p = p->getNext();
+	}
+	
+	dispatched = true;
+	p = InterWaitingList.Head;
+	while (dispatched && p)
+	{
+			process = p->getItem();
+			dispatched = dispatch(process);
+			p = p->getNext();
+	}
+
+	dispatched = true;
+	while (dispatched && !CompIntenWaitingList.isEmpty())
+	{
+		CompIntenWaitingList.peek(process);
+		dispatched = dispatch(process);
+		if (dispatched)
+			CompIntenWaitingList.dequeue(process);
+	}
+}
+
+
+bool MasterNode::dispatch(Process process)
+{
+	bool Assigned = false;
+	if (process.getStatus() == Waiting && process.GetArrivalTime() + process.WT == clock)
+	{
+		Assigned = Assign(process);
+		if (!Assigned)
+			process.WT++;
+		else
+			process.SetStatus(Dispatched);
+	}
+	return Assigned;
+}
+
 void MasterNode::execute()
 {
-	bool Assigned = true;
+	bool executed = true;
 	Process process;
-	while (Assigned)
+	while (executed)
 	{
 		if (!SysWaitingList.isEmpty()) {
 			process = SysWaitingList.Head->getItem();
-			if(process.GetArrivalTime() + process.GetDispatchLatency() == clock || process.GetArrivalTime() + process.GetDispatchLatency() > clock)
-			{
-				Assigned = Assign(process);
-				if (Assigned)
-					SysWaitingList.DeleteFirst();
-				else
-					process.WT++;
-			}
+			executed = execute(process);
 		}
-
+		else
+			executed = false;
 	}
-	Assigned = true;
-	while (Assigned)
+
+	executed = true;
+	while (executed)
 	{
 		if (!InterWaitingList.isEmpty()) {
 			process = InterWaitingList.Head->getItem();
-			if (process.GetArrivalTime() + process.GetDispatchLatency() == clock || process.GetArrivalTime() + process.GetDispatchLatency() > clock)
-			{
-				Assigned = Assign(process);
-				if (Assigned)
-					InterWaitingList.DeleteFirst();
-				else
-					process.WT++;
-			}
+			executed = execute(process);
 		}
+		else
+			executed = false;
 	}
 
-	Assigned = true;
-	while (Assigned)
+	executed = true;
+	while (executed)
 	{
-		if (!CompIntenWaitingList.isEmpty())
-		{
-			if (CompIntenWaitingList.peek(process))
-				if (process.GetArrivalTime() + process.GetDispatchLatency() == clock || process.GetArrivalTime() + process.GetDispatchLatency() > clock)
-				{
-					Assigned = Assign(process);
-					if (Assigned)
-						CompIntenWaitingList.dequeue(process);
-					else
-						process.WT++;
-				}
+		if (!CompIntenWaitingList.isEmpty()) {
+			CompIntenWaitingList.peek(process);
+			executed = execute(process);
 		}
+		else
+			executed = false;
 	}
+}
+
+bool MasterNode::execute(Process process)
+{
+	bool executed = false;
+	if (process.getStatus() == Dispatched && process.WT + process.GetArrivalTime() == clock) {
+		switch (process.GetProcessType()) {
+		case System:
+
+			SysInExecution.InsertSorted(SysWaitingList.Head->getItem(), clock + process.GetExecutionTime());
+			SysWaitingList.DeleteFirst();
+			break;
+
+		case Interactive:
+			InterInExecution.InsertSorted(InterWaitingList.Head->getItem(), clock + process.GetExecutionTime());
+			InterWaitingList.DeleteFirst();
+			break;
+
+		case ComputationallyIntensive:
+
+			Process temp;
+			CompIntenWaitingList.dequeue(temp);
+			CompInExecution.InsertSorted(temp, clock + process.GetExecutionTime());
+			break;
+		}
+		process.SetStatus(InExecution);
+		executed = true;
+	}
+
+	return executed;
 }
 
 bool MasterNode::Assign(Process process)
@@ -74,24 +268,27 @@ bool MasterNode::Assign(Process process)
 		if (!AV_GP_Machines.isEmpty())
 			{
 				AV_GP_Machines.dequeue(mach);
-				EX_GP_Machines.enqueue(mach, process.GetExecutionTime());
-				SysInExecution.InsertSorted(process, process.GetExecutionTime());
+				mach.inextime = clock + mach.getResponseTime() + process.GetExecutionTime();
+				EX_GP_Machines.enqueue(mach, mach.inextime);
+				process.WT = process.WT + mach.getResponseTime();
 				return true;
 			}
 
 		if (!AV_IO_Machines.isEmpty())
 		{
 			AV_IO_Machines.dequeue(mach);
-			EX_IO_Machines.enqueue(mach, process.GetExecutionTime());
-			SysInExecution.InsertSorted(process, process.GetExecutionTime());
+			mach.inextime = clock + mach.getResponseTime() + process.GetExecutionTime();
+			EX_IO_Machines.enqueue(mach, mach.inextime);
+			process.WT = process.WT + mach.getResponseTime();
 			return true;
 		}
 
 		if (!AV_GU_Machines.isEmpty())
 		{
 			AV_GU_Machines.dequeue(mach);
-			EX_GU_Machines.enqueue(mach, process.GetExecutionTime());
-			SysInExecution.InsertSorted(process, process.GetExecutionTime());
+			mach.inextime = clock + mach.getResponseTime() + process.GetExecutionTime();
+			EX_GU_Machines.enqueue(mach, mach.inextime);
+			process.WT = process.WT + mach.getResponseTime();
 			return true;
 		}
 
@@ -103,16 +300,16 @@ bool MasterNode::Assign(Process process)
 		if (!AV_IO_Machines.isEmpty())
 		{
 			AV_IO_Machines.dequeue(mach);
-			EX_IO_Machines.enqueue(mach, process.GetExecutionTime());
-			InterInExecution.InsertSorted(process, process.GetExecutionTime());
+			mach.inextime = clock + mach.getResponseTime() + process.GetExecutionTime();
+			EX_IO_Machines.enqueue(mach, mach.inextime);
 			return true;
 		}
 
 		if (!AV_GP_Machines.isEmpty())
 		{
 			AV_GP_Machines.dequeue(mach);
-			EX_GP_Machines.enqueue(mach, process.GetExecutionTime());
-			SysInExecution.InsertSorted(process, process.GetExecutionTime());
+			mach.inextime = clock + mach.getResponseTime() + process.GetExecutionTime();
+			EX_GP_Machines.enqueue(mach, mach.inextime);
 			return true;
 		}
 		return false;
@@ -122,8 +319,8 @@ bool MasterNode::Assign(Process process)
 		if (!AV_GU_Machines.isEmpty())
 		{
 			AV_GU_Machines.dequeue(mach);
-			EX_GU_Machines.enqueue(mach, process.GetExecutionTime());
-			SysInExecution.InsertSorted(process, process.GetExecutionTime());
+			mach.inextime = clock + mach.getResponseTime() + process.GetExecutionTime();
+			EX_GU_Machines.enqueue(mach, mach.inextime);
 			return true;
 		}
 
@@ -353,7 +550,7 @@ void MasterNode::Operate()
 	{
 		clock++;
 		//Assigning Events
-		
+		ExecuteEvents();
 
 		//Executing Processes
 	
@@ -443,11 +640,19 @@ void MasterNode::ExecuteEvents(bool &exev) {
 	cout << "Events yet to be executed: ";
 	bool dequeued;
 	Event* ev;
-	dequeued = queEvents.dequeue(ev);
+	while (!queEvents.isEmpty() && dequeued)
+	{
+		queEvents.peek(ev);
+		if (ev->ArrivalTime == clock)
+			{
+				ev->Execute(SysWaitingList, InterWaitingList, CompIntenWaitingList);
+				dequeued = queEvents.dequeue(ev);
+			}
+	}
 	cout << endl;
 }
 
-void MasterNode::ExecuteOneProcessOfEachType() {
+/*void MasterNode::ExecuteOneProcessOfEachType() {
     bool dequeued;
     Process process;
 
@@ -470,7 +675,7 @@ void MasterNode::ExecuteOneProcessOfEachType() {
         CompIntenWaitingList.dequeue(process);
         CompInExecution.InsertLast(process);
     }
-}
+}*/
 
 /*void MasterNode::CompleteEach5Cycles()
 {

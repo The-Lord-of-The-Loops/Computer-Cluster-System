@@ -1,15 +1,15 @@
 #pragma once
-/*enum MachineType {
-	generalpurpose,
-	interactive,
-	GPU
-};*/
+enum MachineType {
+	GP,
+	IO,
+	GU
+};
 
 class Machine
 {
 private:
 	int ID;
-	//MachineType Type;
+	MachineType Type;
 	int RebootDuration, ResponseTime, N_bresp;
 	bool Available;
 public:
@@ -17,10 +17,11 @@ public:
 	Machine();
 	Machine(int ID, int rsp, int N, int B);
 
+	int inextime;
 	//setters
 	void setRebootDuration(int RebootDuration);
 	void setRebsponseTime(int ResponseTime);
-	//void setMachineType(MachineType Type);
+	void setMachineType(MachineType Type);
 	void setAvailability(bool available);
 	void setNbresp(int N);
 	//Getters
@@ -29,7 +30,7 @@ public:
 	int getResponseTime();
 	int getID();
 	bool isAvailable();
-	//MachineType getMachineType();
+	MachineType getMachineType();
 
 	~Machine();
 };
