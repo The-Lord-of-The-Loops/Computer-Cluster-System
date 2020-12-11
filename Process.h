@@ -29,6 +29,7 @@ public:
         ID = process.ID;
     }
     //Setters
+    int WT = DispatchLatency;
     void SetArrivalTime(int ArrivalTime);
     void SetProcessType(ProcessType Type);
     void SetDispatchLatency(int DispatchLatency);

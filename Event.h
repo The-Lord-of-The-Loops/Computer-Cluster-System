@@ -10,7 +10,7 @@ public:
     int ID;
 
 	Event(int AT, int ID);
-	virtual void Execute(LinkedList<Process>& Sys, LinkedQueue<Process>& Inter, LinkedQueue<Process>& Comp) = 0;
+	virtual void Execute(LinkedList<Process>& Sys, LinkedList<Process>& Inter, LinkedQueue<Process>& Comp) = 0;
 	~Event();
 	//Getters
 	int GetArrivalTime();

@@ -4,24 +4,24 @@ PromotEvent::PromotEvent(int AT, int ID) : Event(AT, ID)
 {
 }
 
-void PromotEvent::Execute(LinkedList<Process>& Sys, LinkedQueue<Process>& Inter, LinkedQueue<Process>& Comp)
+void PromotEvent::Execute(LinkedList<Process>& Sys, LinkedList<Process>& Inter, LinkedQueue<Process>& Comp)
 {
-	PromoteSystemToComputationallyIntensive(ID, Sys, Comp);
+	PromoteInteractiveToSystem(ID, Sys, Inter);
 }
 
-void PromotEvent::PromoteSystemToComputationallyIntensive(int ID, LinkedList<Process>& Sys, LinkedQueue<Process>& Inter)
+void PromotEvent::PromoteInteractiveToSystem(int ID, LinkedList<Process>& Sys, LinkedList<Process>& Inter)
 {
-	if (!Sys.isEmpty())
+	if (!Inter.isEmpty())
 	{
-		Node<Process>* p = Sys.Head;
+		Node<Process>* p = Inter.Head;
 		Node<Process>* R = p->getNext();
 		if (p->getItem().GetID() == ID)
 		{
-			Inter.enqueue(p->getItem());
+			Sys.InsertSorted(p->getItem(), p->getItem().GetPriority());
 			p = p->getNext();
-			delete Sys.Head;
-			Sys.Head = p;
-			Sys.count--;
+			delete Inter.Head;
+			Inter.Head = p;
+			Inter.count--;
 			return;
 		}
 		else if (R)
@@ -30,10 +30,10 @@ void PromotEvent::PromoteSystemToComputationallyIntensive(int ID, LinkedList<Pro
 			{
 				if (R->getItem().GetID() == ID)
 				{
-					Inter.enqueue(R->getItem());
+					Sys.InsertSorted(R->getItem(), R->getItem().GetPriority());
 					p->setNext(R->getNext());
 					delete R;
-					Sys.count--;
+					Inter.count--;
 					return;
 				}
 				p = R;

@@ -13,82 +13,127 @@ MasterNode::MasterNode()
 	clock = 0;
 }
 
+void MasterNode::execute()
+{
+	bool Assigned = true;
+	Process process;
+	while (Assigned)
+	{
+		if (!SysWaitingList.isEmpty()) {
+			process = SysWaitingList.Head->getItem();
+			if(process.GetArrivalTime() + process.GetDispatchLatency() == clock || process.GetArrivalTime() + process.GetDispatchLatency() > clock)
+			{
+				Assigned = Assign(process);
+				if (Assigned)
+					SysWaitingList.DeleteFirst();
+				else
+					process.WT++;
+			}
+		}
+
+	}
+	Assigned = true;
+	while (Assigned)
+	{
+		if (!InterWaitingList.isEmpty()) {
+			process = InterWaitingList.Head->getItem();
+			if (process.GetArrivalTime() + process.GetDispatchLatency() == clock || process.GetArrivalTime() + process.GetDispatchLatency() > clock)
+			{
+				Assigned = Assign(process);
+				if (Assigned)
+					InterWaitingList.DeleteFirst();
+				else
+					process.WT++;
+			}
+		}
+	}
+
+	Assigned = true;
+	while (Assigned)
+	{
+		if (!CompIntenWaitingList.isEmpty())
+		{
+			if (CompIntenWaitingList.peek(process))
+				if (process.GetArrivalTime() + process.GetDispatchLatency() == clock || process.GetArrivalTime() + process.GetDispatchLatency() > clock)
+				{
+					Assigned = Assign(process);
+					if (Assigned)
+						CompIntenWaitingList.dequeue(process);
+					else
+						process.WT++;
+				}
+		}
+	}
+}
+
 bool MasterNode::Assign(Process process)
 {
+	Machine mach;
 	if (process.GetProcessType() == System)
 	{
-		for (int i = 0; i < no_GP; i++)
-		{
-			if (GP_Machines[i].isAvailable())
+		if (!AV_GP_Machines.isEmpty())
 			{
-				GP_Machines[i].setAvailability(false);
-				SysInExecution.InsertLast(process);
+				AV_GP_Machines.dequeue(mach);
+				EX_GP_Machines.enqueue(mach, process.GetExecutionTime());
+				SysInExecution.InsertSorted(process, process.GetExecutionTime());
 				return true;
 			}
+
+		if (!AV_IO_Machines.isEmpty())
+		{
+			AV_IO_Machines.dequeue(mach);
+			EX_IO_Machines.enqueue(mach, process.GetExecutionTime());
+			SysInExecution.InsertSorted(process, process.GetExecutionTime());
+			return true;
 		}
 
-		for (int i = 0; i < no_IO; i++)
+		if (!AV_GU_Machines.isEmpty())
 		{
-			if (IO_Machines[i].isAvailable())
-			{
-				IO_Machines[i].setAvailability(false);
-				SysInExecution.InsertLast(process);
-				return true;
-			}
+			AV_GU_Machines.dequeue(mach);
+			EX_GU_Machines.enqueue(mach, process.GetExecutionTime());
+			SysInExecution.InsertSorted(process, process.GetExecutionTime());
+			return true;
 		}
 
-		for (int i = 0; i < no_GU; i++)
-		{
-			if (GU_Machines[i].isAvailable())
-			{
-				GU_Machines[i].setAvailability(false);
-				SysInExecution.InsertLast(process);
-				return true;
-			}
-		}
 		return false;
 	}
 	else if (process.GetProcessType() == Interactive)
 	{
 
-		for (int i = 0; i < no_IO; i++)
+		if (!AV_IO_Machines.isEmpty())
 		{
-			if (IO_Machines[i].isAvailable())
-			{
-				IO_Machines[i].setAvailability(false);
-				InterInExecution.InsertLast(process);
-				return true;
-			}
+			AV_IO_Machines.dequeue(mach);
+			EX_IO_Machines.enqueue(mach, process.GetExecutionTime());
+			InterInExecution.InsertSorted(process, process.GetExecutionTime());
+			return true;
 		}
 
-		for (int i = 0; i < no_GP; i++)
+		if (!AV_GP_Machines.isEmpty())
 		{
-			if (GP_Machines[i].isAvailable())
-			{
-				GP_Machines[i].setAvailability(false);
-				InterInExecution.InsertLast(process);
-				return true;
-			}
+			AV_GP_Machines.dequeue(mach);
+			EX_GP_Machines.enqueue(mach, process.GetExecutionTime());
+			SysInExecution.InsertSorted(process, process.GetExecutionTime());
+			return true;
 		}
 		return false;
 	}
 	else if (process.GetProcessType() == ComputationallyIntensive)
 	{
-		for (int i = 0; i < no_GU; i++)
+		if (!AV_GU_Machines.isEmpty())
 		{
-			if (GU_Machines[i].isAvailable())
-			{
-				GU_Machines[i].setAvailability(false);
-				CompInExecution.InsertLast(process);
-				return true;
-			}
+			AV_GU_Machines.dequeue(mach);
+			EX_GU_Machines.enqueue(mach, process.GetExecutionTime());
+			SysInExecution.InsertSorted(process, process.GetExecutionTime());
+			return true;
 		}
+
 		return false;
 	}
+
 	return false;
 }
 
-void MasterNode::SimpleSimulation(string inputfile)
+/*void MasterNode::SimpleSimulation(string inputfile)
 {
 	ReadNecessaryData(inputfile);
 	int i = 0;
@@ -124,6 +169,7 @@ void MasterNode::SimpleSimulation(string inputfile)
 			process = InterInExecution.Head->getItem();
 			CompletedProcesses.InsertLast(process);
 			InterInExecution.DeleteFirst();
+
 			if (CompInExecution.Head)
 			process = CompInExecution.Head->getItem();
 			CompletedProcesses.InsertLast(process);
@@ -140,59 +186,73 @@ void MasterNode::SimpleSimulation(string inputfile)
             break;
         }
 	}
-}
+}*/
 
 void MasterNode::PrintAvMacIDs()
 {
+	Machine mach;
+	PriorityQueue<Machine> gpque, guque, ioque;
 	cout << "Available Machines: ";
-	for (int i = 0; i < no_GP; i++)
+	for (int i = 0; i < AV_GP_Machines.GetCount(); i++)
 	{
-		if (GP_Machines[i].isAvailable())
-			cout << "[ " << GP_Machines[i].getID() << " ]" << "   ";
+		if (AV_GP_Machines.dequeue(mach))
+		{
+			cout << "[ " << mach.getID() << " ]" << "   ";
+			gpque.enqueue(mach, mach.getResponseTime());
+		}
 	}
 	for (int i = 0; i < no_GU; i++)
 	{
-		if (GU_Machines[i].isAvailable())
-			cout << "( " << GU_Machines[i].getID() << " )" << "   ";
+		if (AV_GU_Machines.dequeue(mach))
+		{
+			cout << "( " << mach.getID() << " )" << "   ";
+			guque.enqueue(mach, mach.getResponseTime());
+		}
 	}
 	for (int i = 0; i < no_IO; i++)
 	{
-		if (IO_Machines[i].isAvailable())
-			cout << IO_Machines[i].getID() << "   ";
+		if (AV_IO_Machines.dequeue(mach))
+		{
+			cout << mach.getID() << "   ";
+			ioque.enqueue(mach, mach.getResponseTime());
+		}
 	}
 	cout << endl;
+
+	while (!gpque.isEmpty())
+	{
+		gpque.dequeue(mach);
+		AV_GP_Machines.enqueue(mach,mach.getResponseTime());
+	}
+	while (!guque.isEmpty())
+	{
+		guque.dequeue(mach);
+		AV_GU_Machines.enqueue(mach, mach.getResponseTime());
+	}
+	while (!ioque.isEmpty())
+	{
+		ioque.dequeue(mach);
+		AV_IO_Machines.enqueue(mach, mach.getResponseTime());
+	}
 }
 
 void MasterNode::Printno_Av_Machines()
 {
-	int ngp = 0, ngu = 0, nio = 0;
-	cout << "Printing No. of Available Machines:" << endl;
-	for (int i = 0; i < no_GP; i++)
-	{
-		if (GP_Machines[i].isAvailable())
-			ngp++;
-	}
-	cout << "[ " << ngp << " ]" << "   ";
-	for (int i = 0; i < no_GU; i++)
-	{
-		if (GU_Machines[i].isAvailable())
-			ngu++;
-	}
-	cout << "( " << ngu << " )" << "   ";
-	for (int i = 0; i < no_IO; i++)
-	{
-		if (IO_Machines[i].isAvailable())
-			nio++;
-	}
-	cout << nio << endl;
-	cout << " ------------------------------- " << endl;
+	int sum = AV_GP_Machines.GetCount() + AV_GU_Machines.GetCount() + AV_IO_Machines.GetCount();
+	cout << "Machines: " << sum << "  ";
+	
+	cout << "[ " << AV_GP_Machines.GetCount() << " ]" << "   ";
+	
+	cout << "( " << AV_GU_Machines.GetCount() << " )" << "   ";
+	
+	cout << AV_IO_Machines.GetCount() << endl;
 }
 
 void MasterNode::Printno_Wa_Process()
 {
-	cout << "Printing No. of Waiting Processes:" << endl;
+	cout << "Processes: " << SysWaitingList.count + InterWaitingList.count + CompIntenWaitingList.GetCount() << "  ";
 	cout << "[ " << SysWaitingList.count << " ]" << "   ";
-	cout << "( " << InterWaitingList.GetCount() << " )" << "   ";
+	cout << "( " << InterWaitingList.count << " )" << "   ";
 	cout << CompIntenWaitingList.GetCount() << endl;
 }
 
@@ -200,28 +260,34 @@ void MasterNode::PrintWaProcIDs()
 {
 	Process process;
 	Node<Process> *p;
-	p = SysWaitingList.Head;
 	cout << "Waiting Processes: ";
-	if (p) {
+	p = SysWaitingList.Head;
+	if (p)
+	{
 		for (int i = 0; i < SysWaitingList.count; i++)
 		{
 			process = p->getItem();
 			cout << "[ " << process.GetID() << " ]" << "  ";
 			p = p->getNext();
 		}
-		for (int i = 0; i < InterWaitingList.GetCount(); i++)
+	}
+	p = InterWaitingList.Head;
+	if (p)
+	{
+		for (int i = 0; i < InterWaitingList.count; i++)
 		{
-			InterWaitingList.dequeue(process);
+			process = p->getItem();
 			cout << "( " << process.GetID() << " )" << "  ";
-			InterWaitingList.enqueue(process);
+			p = p->getNext();
 		}
+	}
 		for (int i = 0; i < CompIntenWaitingList.GetCount(); i++)
 		{
 			CompIntenWaitingList.dequeue(process);
 			cout << process.GetID() << "  ";
 			CompIntenWaitingList.enqueue(process);
 		}
-	}
+
 	cout << endl;
 }
 
@@ -287,42 +353,10 @@ void MasterNode::Operate()
 	{
 		clock++;
 		//Assigning Events
-		for (int i = 0; i < E; i++)
-		{
-			if (arrEvents[i]->ArrivalTime == clock)
-				arrEvents[i]->Execute(SysWaitingList,InterWaitingList, CompIntenWaitingList);
-		}
+		
 
 		//Executing Processes
-		bool Assigned = true;
-		Process process;
-		while (Assigned)
-		{
-			if(!SysWaitingList.isEmpty()){
-			    process = SysWaitingList.Head->getItem();
-			    SysWaitingList.DeleteFirst();
-                Assigned = Assign(process);
-            }
-
-			if (!Assigned)
-				SysWaitingList.InsertSorted(process,process.GetPriority());
-		}
-		Assigned = true;
-		while (Assigned)
-		{
-			if(InterWaitingList.dequeue(process))
-				Assigned = Assign(process);
-			if (!Assigned)
-				InterWaitingList.enqueue(process);
-		}
-		Assigned = true;
-		while (Assigned)
-		{
-			if(CompIntenWaitingList.dequeue(process))
-				Assigned = Assign(process);
-			if (!Assigned)
-				CompIntenWaitingList.enqueue(process);
-		}
+	
 
 		//Checking for operations
 		if (!arrEvents[E] && SysWaitingList.isEmpty() && InterWaitingList.isEmpty() && CompIntenWaitingList.isEmpty() && SysInExecution.isEmpty() && CompInExecution.isEmpty() && InterInExecution.isEmpty())
@@ -342,46 +376,48 @@ void MasterNode::ReadNecessaryData(string infile)
 	ifstream Infile;
 	Infile.open(infile);
 	Infile >> no_GP >> no_GU >> no_IO >> rsp_GP >> rsp_GU >> rsp_IO >> N >> BGP >> BGU >> BIO >> AutoP >> E;
-	arrEvents = new Event*[E];
     //cout << " " << no_GP << " " << no_GU << " " << no_IO << " " << rsp_GP << " " << rsp_GU << " " << rsp_IO << " " << N << " " << BGP << " " << BGU << " " << BIO << " " << AutoP << " " << E;
 	//creating Machines
 	for (int i = 0; i < no_GP; i++)
 	{
 		Machine GpMach(i, rsp_GP, N, BGP);
-		GP_Machines[i] = GpMach;
+		AV_GP_Machines.enqueue(GpMach,GpMach.getResponseTime());
 	}
 	for (int i = 0; i < no_GU; i++)
 	{
 		Machine GuMach(i + no_GP, rsp_GU, N, BGU);
-		GU_Machines[i] = GuMach;
+		AV_GP_Machines.enqueue(GuMach, GuMach.getResponseTime());
 	}
 	for (int i = 0; i < no_IO; i++)
 	{
 		Machine IoMach(i + no_GP + no_GU, rsp_IO, N, BIO);
-		IO_Machines[i] = IoMach;
+		AV_GP_Machines.enqueue(IoMach, IoMach.getResponseTime());
 	}
 	char EventType, processtype;
 	int at, id, dl, et, p;
 
-	for (int i = 0; i < E; i++)
+	ev = new Event * [E];
+		for (int i = 0; i < E; i++)
 	{
 		Infile >> EventType;
 
 		if (EventType == 'A')
 		{
 			Infile >> processtype >> at >> id >> dl >> et >> p;
-			arrEvents[i] = new ArrivalEvent(at, id, (processtype == 'S') ? System : (processtype == 'I') ? Interactive : ComputationallyIntensive, dl, et, p);
+			ev[i] = new ArrivalEvent(at, id, (processtype == 'S') ? System : (processtype == 'I') ? Interactive : ComputationallyIntensive, dl, et, p);
+			queEvents.enqueue(ev[i]);
 		}
 		else if (EventType == 'X')
 		{
 			Infile  >> at >> id;
-			arrEvents[i] = new CancelEvent(at, id);
+			ev[i] = new CancelEvent(at, id);
+			queEvents.enqueue(ev[i]);
 		}
 		else if (EventType == 'P')
 		{
 			Infile  >> at >> id;
-			arrEvents[i] = new PromotEvent(at, id);
-
+			ev[i] = new PromotEvent(at, id);
+			queEvents.enqueue(ev[i]);
 		}
 	}
 
@@ -390,12 +426,6 @@ void MasterNode::ReadNecessaryData(string infile)
 
 MasterNode::~MasterNode()
 {
-	
-	for (int i = 0; i < E; i++)
-	{
-		delete arrEvents[i];
-	}
-	delete[] arrEvents;
 }
 
 void MasterNode::PrintInfo() {
@@ -411,23 +441,9 @@ void MasterNode::PrintInfo() {
 
 void MasterNode::ExecuteEvents(bool &exev) {
 	cout << "Events yet to be executed: ";
-	for (int i = 0; i < E; i++)
-    {
-        if (arrEvents[i])
-        {
-           cout << arrEvents[i]->ID << " , ";
-            if (arrEvents[i]->ArrivalTime == clock)
-            {
-				PromotEvent* test = dynamic_cast<PromotEvent*> (arrEvents[i]);
-				if (!test)
-					arrEvents[i]->Execute(SysWaitingList, InterWaitingList, CompIntenWaitingList);
-				delete arrEvents[i];
-				arrEvents[i] = nullptr;
-            }
-            exev = true;
-        }
-    }
-	cout << endl;
+	bool dequeued;
+	Event* ev;
+	dequeued = queEvents.dequeue(ev);
 	cout << endl;
 }
 

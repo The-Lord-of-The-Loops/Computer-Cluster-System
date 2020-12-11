@@ -25,12 +25,16 @@ private:
 	int AutoP;			//number of cycles after which an interactive process is promoted to a system process
 	int E;				// total number of events
 
-	Machine *GP_Machines = new Machine[no_GP]; //array of GP Machines
-	Machine *GU_Machines = new Machine[no_GU]; //array of GU Machines
-	Machine *IO_Machines = new Machine[no_IO]; //array of IO Machines
+	PriorityQueue<Machine> AV_GP_Machines; //array of GP Machines
+	PriorityQueue<Machine> AV_GU_Machines; //array of GU Machines
+	PriorityQueue<Machine> AV_IO_Machines; //array of IO Machines
 
-	Event **arrEvents; // array of events pointers
+	PriorityQueue<Machine> EX_GP_Machines;
+	PriorityQueue<Machine> EX_GU_Machines;
+	PriorityQueue<Machine> EX_IO_Machines;
 
+	LinkedQueue<Event*> queEvents; // array of events pointers
+	Event** ev;
     LinkedList<Process> SysInExecution; // linked list of processes in exxcution
 	LinkedList<Process> InterInExecution; // linked list of processes in exxcution
 	LinkedList<Process> CompInExecution; // linked list of processes in exxcution
@@ -57,9 +61,13 @@ public:
 	void ExecuteOneProcessOfEachType();
 	//void CompleteEach5Cycles();
 
-	bool Assign(Process Process);
+	//Zebala
 	bool deleteProcess(Process Process);
 	bool Promote(Process Process);
+
+	//Underconstruction
+	void execute();
+	bool Assign(Process Process);
 	void Operate();
 	bool IsExecuting();
 	~MasterNode();
@@ -67,6 +75,6 @@ public:
 	LinkedList<Process> SysWaitingList;
 	//To Sorted linked list
 
-	LinkedQueue<Process> InterWaitingList;
+	LinkedList<Process> InterWaitingList;
 	LinkedQueue<Process> CompIntenWaitingList;
 };

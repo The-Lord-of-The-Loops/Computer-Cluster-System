@@ -3,7 +3,7 @@
 class PromotEvent : public Event{
 public:
 	PromotEvent(int AT, int ID);
-	void Execute(LinkedList<Process>& Sys, LinkedQueue<Process>& Inter, LinkedQueue<Process>& Comp) override;
-	void PromoteSystemToComputationallyIntensive(int ID, LinkedList<Process>& Sys, LinkedQueue<Process>& Inter);
+	void Execute(LinkedList<Process>& Sys, LinkedList<Process>& Inter, LinkedQueue<Process>& Comp) override;
+	void PromoteInteractiveToSystem(int ID, LinkedList<Process>& Sys, LinkedList<Process>& Inter);
 };
 

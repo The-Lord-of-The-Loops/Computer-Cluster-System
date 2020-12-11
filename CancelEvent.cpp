@@ -2,18 +2,18 @@
 
 CancelEvent::CancelEvent(int AT, int ID) : Event(AT,ID){}
 
-void CancelEvent::deletSysProcess(int ID, LinkedList<Process> &Sys)
+void CancelEvent::deletSysProcess(int ID, LinkedList<Process> &Inter)
 {
-	if (!Sys.isEmpty())
+	if (!Inter.isEmpty())
 	{
-		Node<Process>* p = Sys.Head;
+		Node<Process>* p = Inter.Head;
 		Node<Process>* R = p->getNext();
 		if (p->getItem().GetID() == ID)
 		{
 			p = p->getNext();
-			delete Sys.Head;
-			Sys.Head = p;
-			Sys.count--;
+			delete Inter.Head;
+			Inter.Head = p;
+			Inter.count--;
 			return;
 		}
 		else if(R)
@@ -24,7 +24,7 @@ void CancelEvent::deletSysProcess(int ID, LinkedList<Process> &Sys)
 				{
 					p->setNext(R->getNext());
 					delete R;
-					Sys.count--;
+					Inter.count--;
 					return;
 				}
 				p = R;
@@ -34,7 +34,7 @@ void CancelEvent::deletSysProcess(int ID, LinkedList<Process> &Sys)
 	}
 }
 
-void CancelEvent::Execute(LinkedList<Process>& Sys, LinkedQueue<Process>& Inter, LinkedQueue<Process>& Comp)
+void CancelEvent::Execute(LinkedList<Process>& Sys, LinkedList<Process>& Inter, LinkedQueue<Process>& Comp)
 {
-	deletSysProcess(ID, Sys);
+	deletSysProcess(ID, Inter);
 }
