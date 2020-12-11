@@ -60,7 +60,7 @@ bool PriorityQueue<T>::enqueue(const T& newEntry, const int& priority)
 		{
 			temp = temp->getNext();
 		}
-		if (temp->getNext() && temp->getNext()->getItem().getPriority() == priority)
+		if (temp->getNext() && temp->getNext()->getItem().getPriority() == priority) // first come first served
 			temp = temp->getNext();
 		newNodePtr->setNext(temp->getNext());
 		temp->setNext(newNodePtr);
