@@ -11,12 +11,14 @@
 #include "CancelEvent.h"
 #include "PromotEvent.h"
 #include <fstream>
-
+#include "UI.h"
 using namespace std;
 
 class MasterNode
 {
 private:
+    UI ProgramUI;
+    PROG_MODE Mode;
 	unsigned long int clock;	//  the clock
 	int no_GP, no_GU, no_IO;	// number of machines for each type
 	int rsp_GP, rsp_GU, rsp_IO; // response time for each type
@@ -35,9 +37,9 @@ private:
 
 	LinkedQueue<Event*> queEvents; // array of events pointers
 	Event** ev;
-    LinkedList<Process> SysInExecution; // linked list of processes in exxcution
-	LinkedList<Process> InterInExecution; // linked list of processes in exxcution
-	LinkedList<Process> CompInExecution; // linked list of processes in exxcution
+    LinkedList<Process> SysInExecution; // linked list of processes in execution
+	LinkedList<Process> InterInExecution; // linked list of processes in execution
+	LinkedList<Process> CompInExecution; // linked list of processes in execution
 	LinkedList<Process> CompletedProcesses; // linked list of completed process
 
 public:
@@ -57,13 +59,10 @@ public:
 	void PrintWaProcIDs();
 	void Printno_In_Execution();
 	void PrintInExecIDs();
+	void Printno_Completed(int NoInteractive, int NoCompInt, int NoSys);
+    void PrintCompletedIDs(int &NoInteractive, int &NoCompInt, int &NoSys);
 	void ExecuteEvents(bool &exev);
-	//void ExecuteOneProcessOfEachType();
-	//void CompleteEach5Cycles();
 
-	//Zebala
-	bool deleteProcess(Process Process);
-	bool Promote(Process Process);
 
 	//Underconstruction
 	void complete();
@@ -77,6 +76,14 @@ public:
 	void Operate();
 	bool IsExecuting();
 	~MasterNode();
+
+	//Phase 2
+	void Simulate();
+	void Analyze(bool &exev);
+	void SaveToFile();
+	bool Check(bool exev);
+	void FindAssignedLastCycle();
+
 
 	LinkedList<Process> SysWaitingList;
 	//To Sorted linked list

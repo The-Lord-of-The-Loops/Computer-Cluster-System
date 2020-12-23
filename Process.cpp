@@ -74,3 +74,7 @@ ProcessStatus Process::getStatus()
 Process::~Process()
 {
 }
+
+void Process::NotAssignedLastCycle() {
+    AssignedLastCycle = false;
+}

@@ -1,4 +1,7 @@
 #pragma once
+
+#include "Machine.h"
+
 enum ProcessType{
     System,
     Interactive,
@@ -45,7 +48,9 @@ public:
     int GetPriority();
     int GetID();
     ProcessStatus getStatus();
-    
+    void NotAssignedLastCycle();
+    bool AssignedLastCycle = false;
+    Machine* AssignedMachine;
 
     ~Process();
 };

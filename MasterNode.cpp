@@ -11,6 +11,7 @@ MasterNode::MasterNode()
 {
     SysWaitingList.count = 0;
 	clock = 0;
+	Mode = ProgramUI.getProgram_Mode();
 }
 
 void MasterNode::complete()
@@ -271,6 +272,8 @@ bool MasterNode::Assign(Process process)
 				mach.inextime = clock + mach.getResponseTime() + process.GetExecutionTime();
 				EX_GP_Machines.enqueue(mach, mach.inextime);
 				process.WT = process.WT + mach.getResponseTime();
+				process.AssignedLastCycle = true;
+				process.AssignedMachine = &mach;
 				return true;
 			}
 
@@ -280,6 +283,8 @@ bool MasterNode::Assign(Process process)
 			mach.inextime = clock + mach.getResponseTime() + process.GetExecutionTime();
 			EX_IO_Machines.enqueue(mach, mach.inextime);
 			process.WT = process.WT + mach.getResponseTime();
+            process.AssignedLastCycle = true;
+            process.AssignedMachine = &mach;
 			return true;
 		}
 
@@ -289,6 +294,8 @@ bool MasterNode::Assign(Process process)
 			mach.inextime = clock + mach.getResponseTime() + process.GetExecutionTime();
 			EX_GU_Machines.enqueue(mach, mach.inextime);
 			process.WT = process.WT + mach.getResponseTime();
+            process.AssignedLastCycle = true;
+            process.AssignedMachine = &mach;
 			return true;
 		}
 
@@ -302,6 +309,8 @@ bool MasterNode::Assign(Process process)
 			AV_IO_Machines.dequeue(mach);
 			mach.inextime = clock + mach.getResponseTime() + process.GetExecutionTime();
 			EX_IO_Machines.enqueue(mach, mach.inextime);
+            process.AssignedLastCycle = true;
+            process.AssignedMachine = &mach;
 			return true;
 		}
 
@@ -310,6 +319,8 @@ bool MasterNode::Assign(Process process)
 			AV_GP_Machines.dequeue(mach);
 			mach.inextime = clock + mach.getResponseTime() + process.GetExecutionTime();
 			EX_GP_Machines.enqueue(mach, mach.inextime);
+            process.AssignedLastCycle = true;
+            process.AssignedMachine = &mach;
 			return true;
 		}
 		return false;
@@ -321,6 +332,8 @@ bool MasterNode::Assign(Process process)
 			AV_GU_Machines.dequeue(mach);
 			mach.inextime = clock + mach.getResponseTime() + process.GetExecutionTime();
 			EX_GU_Machines.enqueue(mach, mach.inextime);
+            process.AssignedLastCycle = true;
+            process.AssignedMachine = &mach;
 			return true;
 		}
 
@@ -394,7 +407,7 @@ void MasterNode::PrintAvMacIDs()
 	{
 		if (AV_GP_Machines.dequeue(mach))
 		{
-			cout << "[ " << mach.getID() << " ]" << "   ";
+			ProgramUI.PrintGPMachine(mach.getID());
 			gpque.enqueue(mach, mach.getResponseTime());
 		}
 	}
@@ -402,7 +415,7 @@ void MasterNode::PrintAvMacIDs()
 	{
 		if (AV_GU_Machines.dequeue(mach))
 		{
-			cout << "( " << mach.getID() << " )" << "   ";
+            ProgramUI.PrintGPUMachine(mach.getID());
 			guque.enqueue(mach, mach.getResponseTime());
 		}
 	}
@@ -410,7 +423,7 @@ void MasterNode::PrintAvMacIDs()
 	{
 		if (AV_IO_Machines.dequeue(mach))
 		{
-			cout << mach.getID() << "   ";
+            ProgramUI.PrintIOMachine(mach.getID());
 			ioque.enqueue(mach, mach.getResponseTime());
 		}
 	}
@@ -435,22 +448,28 @@ void MasterNode::PrintAvMacIDs()
 
 void MasterNode::Printno_Av_Machines()
 {
-	int sum = AV_GP_Machines.GetCount() + AV_GU_Machines.GetCount() + AV_IO_Machines.GetCount();
-	cout << "Machines: " << sum << "  ";
+	UI::printString("Numbers of Available Machines:     ");
 	
-	cout << "[ " << AV_GP_Machines.GetCount() << " ]" << "   ";
-	
-	cout << "( " << AV_GU_Machines.GetCount() << " )" << "   ";
-	
-	cout << AV_IO_Machines.GetCount() << endl;
+	UI::PrintGPMachine(AV_GP_Machines.GetCount());
+
+	UI::PrintGPUMachine(AV_GU_Machines.GetCount());
+
+	UI::PrintIOMachine(AV_IO_Machines.GetCount());
+
+    UI::printString("\n");
 }
 
 void MasterNode::Printno_Wa_Process()
 {
-	cout << "Processes: " << SysWaitingList.count + InterWaitingList.count + CompIntenWaitingList.GetCount() << "  ";
-	cout << "[ " << SysWaitingList.count << " ]" << "   ";
-	cout << "( " << InterWaitingList.count << " )" << "   ";
-	cout << CompIntenWaitingList.GetCount() << endl;
+    UI::printString("Numbers of Waiting Processes:      ");
+
+    UI::PrintSystemProcess(SysWaitingList.count);
+
+	UI::PrintInteractiveProcess(InterWaitingList.count);
+
+	UI::PrintCompIntenProcess(CompIntenWaitingList.GetCount());
+
+	UI::printString("\n");
 }
 
 void MasterNode::PrintWaProcIDs()
@@ -464,7 +483,7 @@ void MasterNode::PrintWaProcIDs()
 		for (int i = 0; i < SysWaitingList.count; i++)
 		{
 			process = p->getItem();
-			cout << "[ " << process.GetID() << " ]" << "  ";
+			UI::PrintSystemProcess(process.GetID());
 			p = p->getNext();
 		}
 	}
@@ -474,24 +493,23 @@ void MasterNode::PrintWaProcIDs()
 		for (int i = 0; i < InterWaitingList.count; i++)
 		{
 			process = p->getItem();
-			cout << "( " << process.GetID() << " )" << "  ";
+            UI::PrintInteractiveProcess(process.GetID());
 			p = p->getNext();
 		}
 	}
 		for (int i = 0; i < CompIntenWaitingList.GetCount(); i++)
 		{
 			CompIntenWaitingList.dequeue(process);
-			cout << process.GetID() << "  ";
+            UI::PrintCompIntenProcess(process.GetID());
 			CompIntenWaitingList.enqueue(process);
 		}
-
 	cout << endl;
 }
 
 void MasterNode::Printno_In_Execution()
 {
 	int sysp =0 , interp = 0, compp = 0;
-	cout << "Printing No. of In Execution Processes: " << endl;
+    cout << "Numbers of In-Execution Processes: ";
 	Node<Process>* p = SysInExecution.Head;
 	while (p)
 	{
@@ -521,24 +539,65 @@ void MasterNode::PrintInExecIDs()
 	while (p)
 	{
 		process = p->getItem();
-		cout << "[ " << process.GetID() << " ]" << "  ";
+		UI::PrintSystemProcess(process.GetID());
 		p = p->getNext();
 	}
 	p = InterInExecution.Head;
 	while (p)
 	{
 		process = p->getItem();
-		cout << "( " << process.GetID() << " )" << "  ";
+        UI::PrintInteractiveProcess(process.GetID());
 		p = p->getNext();
 	}
 	p = CompInExecution.Head;
 	while (p)
 	{
 		process = p->getItem();
-		cout << process.GetID() << "  ";
+        UI::PrintCompIntenProcess(process.GetID());
 		p = p->getNext();
 	}
 	cout << endl;
+}
+
+void MasterNode::Printno_Completed(int NoInteractive, int NoCompInt, int NoSys) {
+    UI::printString("Numbers of Completed Processes:    ");
+
+    UI::PrintInteractiveProcess(NoInteractive);
+
+    UI::PrintCompIntenProcess(NoCompInt);
+
+    UI::PrintSystemProcess(NoSys);
+
+    UI::printString("\n");
+}
+
+void MasterNode::PrintCompletedIDs(int &NoInteractive, int &NoCompInt, int &NoSys) {
+    NoSys = 0;
+    NoInteractive = 0;
+    NoCompInt = 0;
+    Node<Process> *p =  CompletedProcesses.Head;
+    cout << "Completed Processes:    ";
+    while(p){
+        switch(p->getItem().GetProcessType()){
+            case Interactive:{
+                NoInteractive++;
+                UI::PrintInteractiveProcess(p->getItem().GetID());
+                break;
+            }
+            case System:{
+                NoSys++;
+                UI::PrintSystemProcess(p->getItem().GetID());
+                break;
+            }
+            case ComputationallyIntensive:{
+                NoCompInt++;
+                UI::PrintCompIntenProcess(p->getItem().GetID());
+                break;
+            }
+        }
+        p = p->getNext();
+    }
+    cout << endl;
 }
 
 void MasterNode::Operate()
@@ -626,14 +685,25 @@ MasterNode::~MasterNode()
 }
 
 void MasterNode::PrintInfo() {
-    Printno_Av_Machines();
+    //Available Machines
     PrintAvMacIDs();
-
-    Printno_Wa_Process();
+    //Waiting Processes
     PrintWaProcIDs();
-
-    Printno_In_Execution();
+    //In-Execution Processes
     PrintInExecIDs();
+    //Completed Processes
+    int NoInteractive, NoCompInt, NoSys;
+    PrintCompletedIDs(NoInteractive, NoCompInt, NoSys);
+    //Current Cycle
+    ProgramUI.PrintCycle(clock);
+    //No of waiting processes of each type
+    Printno_Wa_Process();
+    //No of Available Processes of each type
+    Printno_Av_Machines();
+    //Type and ID of All machines and processes assigned last cycle only
+    FindAssignedLastCycle();
+    //Total no. of processes completed so far of each type
+    PrintCompletedIDs(NoInteractive, NoCompInt, NoSys);
 }
 
 void MasterNode::ExecuteEvents(bool &exev) {
@@ -652,123 +722,71 @@ void MasterNode::ExecuteEvents(bool &exev) {
 	cout << endl;
 }
 
-/*void MasterNode::ExecuteOneProcessOfEachType() {
-    bool dequeued;
-    Process process;
+void MasterNode::Simulate() {
+    switch(Mode){
+        case PROG_MODE(0):{
+            //Interactive
+            bool exev = false;
+            while(Check(exev)){
+                Analyze(exev);
+                PrintInfo();
+                ProgramUI.WaitForUser();
+            }
+            break;
+        }
+        case PROG_MODE(1):{
+            //Step by step
+            bool exev = false;
+            while(Check(exev)){
+                Analyze(exev);
+                PrintInfo();
+            }
+            break;
+        }
+        case PROG_MODE(2):{
+            //Silent
+            bool exev = false;
+            while(Check(exev))
+                Analyze(exev);
 
-    if(!SysWaitingList.isEmpty()){
-        process = SysWaitingList.Head->getItem();
-        SysInExecution.InsertLast(process);
-		SysWaitingList.DeleteFirst();
+            break;
+        }
     }
-
-    dequeued = InterWaitingList.peek(process);
-    if (dequeued)
-    {
-        InterWaitingList.dequeue(process);
-        InterInExecution.InsertLast(process);
-    }
-
-    dequeued = CompIntenWaitingList.peek(process);
-    if (dequeued)
-    {
-        CompIntenWaitingList.dequeue(process);
-        CompInExecution.InsertLast(process);
-    }
-}*/
-
-/*void MasterNode::CompleteEach5Cycles()
-{
-
-	Node<Process>* p;
-	Node<Process>* R;
-	bool Syscomp, Intercomp, compcomp;
-	Process process;
-	p = InExecution.Head;
-	R = p;
-	Syscomp = false; Intercomp = false; compcomp = false;
-
-	if (!InExecution.isEmpty())
-	{
-		bool completed;
-		while (!Syscomp || !Intercomp || !compcomp)
-		{
-			if (!p)
-				return;
-			completed = false;
-			process = p->getItem();
-			if (process.GetProcessType() == System && !Syscomp)
-			{
-				CompletedProcesses.InsertLast(process);
-				p = p->getNext();
-				InExecution.DeleteFirst();
-				Syscomp = true;
-				completed = true;
-			}
-			else if (process.GetProcessType() == Interactive && !Intercomp)
-			{
-				CompletedProcesses.InsertLast(process);
-				p = p->getNext();
-				InExecution.DeleteFirst();
-				Intercomp = true;
-				completed = true;
-			}
-			else if (process.GetProcessType() == ComputationallyIntensive && !compcomp)
-			{
-				CompletedProcesses.InsertLast(process);
-				p = p->getNext();
-				InExecution.DeleteFirst();
-				compcomp = true;
-				completed = true;
-			}
-			if (!completed)
-				break;
-			else if (Syscomp && Intercomp && compcomp)
-				return;
-		}
-
-		R = p->getNext();
-		while (!Syscomp || !Intercomp || !compcomp)
-		{
-			if (!R)
-				return;
-			completed = false;
-			process = R->getItem();
-			if (process.GetProcessType() == System && !Syscomp)
-			{
-				CompletedProcesses.InsertLast(process);
-				p->setNext(R->getNext());
-				delete R;
-				R = p->getNext();
-				Syscomp = true;
-				completed = true;
-			}
-			else if (process.GetProcessType() == Interactive && !Intercomp)
-			{
-				CompletedProcesses.InsertLast(process);
-				p->setNext(R->getNext());
-				delete R;
-				R = p->getNext();
-				Intercomp = true;
-				completed = true;
-			}
-			else if (process.GetProcessType() == ComputationallyIntensive && !compcomp)
-			{
-				CompletedProcesses.InsertLast(process);
-				p->setNext(R->getNext());
-				delete R;
-				R = p->getNext();
-				compcomp = true;
-				completed = true;
-			}
-			if (!completed)
-			{
-				p = p->getNext();
-				R = R->getNext();
-			}
-			else if (Syscomp && Intercomp && compcomp)
-				return;
-		}
-	}
+    SaveToFile();
 }
-;*/
+
+bool MasterNode::Check(bool exev) {
+    return !(!exev && SysWaitingList.isEmpty() && InterWaitingList.isEmpty() && CompIntenWaitingList.isEmpty() &&
+             SysInExecution.isEmpty() && InterInExecution.isEmpty() && CompInExecution.isEmpty());
+}
+
+void MasterNode::FindAssignedLastCycle() {
+    Node<Process>* p = SysInExecution.Head;
+    while(p){
+        if(p->getItem().AssignedLastCycle){
+            Process process = p->getItem();
+            process.NotAssignedLastCycle();
+            UI::PrintAssignedProcessToMachine(process.GetProcessType(),process.GetID(),process.AssignedMachine->getMachineType(),process.AssignedMachine->getID());
+        }
+        p = p->getNext();
+    }
+    p = InterInExecution.Head;
+    while(p){
+        if(p->getItem().AssignedLastCycle){
+            Process process = p->getItem();
+            process.NotAssignedLastCycle();
+            UI::PrintAssignedProcessToMachine(process.GetProcessType(),process.GetID(),process.AssignedMachine->getMachineType(),process.AssignedMachine->getID());
+        }
+        p = p->getNext();
+    }
+    p = CompInExecution.Head;
+    while(p){
+        if(p->getItem().AssignedLastCycle){
+            Process process = p->getItem();
+            process.NotAssignedLastCycle();
+            UI::PrintAssignedProcessToMachine(process.GetProcessType(),process.GetID(),process.AssignedMachine->getMachineType(),process.AssignedMachine->getID());
+        }
+        p = p->getNext();
+    }
+}
+
