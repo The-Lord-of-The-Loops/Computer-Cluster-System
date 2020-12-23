@@ -8,7 +8,7 @@
 using namespace std;
 
 enum PROG_MODE{
-    Interactive,
+    interactive,
     StepByStep,
     Silent
 };

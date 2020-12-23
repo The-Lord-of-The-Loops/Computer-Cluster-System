@@ -88,7 +88,6 @@ void MasterNode::complete()
 bool MasterNode::complete(Process process)
 {
 	bool completed = false;
-	Process process;
 	if (process.GetArrivalTime() + process.WT + process.GetExecutionTime() == clock)
 	{
 		switch (process.GetProcessType())
@@ -121,7 +120,6 @@ bool MasterNode::complete(Process process)
 
 bool MasterNode::complete(Machine machine)
 {
-	Machine machine;
 	bool completed = false;
 	if (machine.inextime == clock)
 	{
@@ -178,7 +176,6 @@ void MasterNode::dispatch()
 			CompIntenWaitingList.dequeue(process);
 	}
 }
-
 
 bool MasterNode::dispatch(Process process)
 {
@@ -615,7 +612,7 @@ void MasterNode::Operate()
 	
 
 		//Checking for operations
-		if (!arrEvents[E] && SysWaitingList.isEmpty() && InterWaitingList.isEmpty() && CompIntenWaitingList.isEmpty() && SysInExecution.isEmpty() && CompInExecution.isEmpty() && InterInExecution.isEmpty())
+		if (queEvents.isEmpty() && SysWaitingList.isEmpty() && InterWaitingList.isEmpty() && CompIntenWaitingList.isEmpty() && SysInExecution.isEmpty() && CompInExecution.isEmpty() && InterInExecution.isEmpty())
 		{
 			operate = false;
 		}
@@ -706,18 +703,20 @@ void MasterNode::PrintInfo() {
     PrintCompletedIDs(NoInteractive, NoCompInt, NoSys);
 }
 
-void MasterNode::ExecuteEvents(bool &exev) {
+void MasterNode::ExecuteEvents() {
 	cout << "Events yet to be executed: ";
-	bool dequeued;
+	bool dequeued = true;
 	Event* ev;
 	while (!queEvents.isEmpty() && dequeued)
 	{
 		queEvents.peek(ev);
 		if (ev->ArrivalTime == clock)
-			{
-				ev->Execute(SysWaitingList, InterWaitingList, CompIntenWaitingList);
-				dequeued = queEvents.dequeue(ev);
-			}
+		{
+			ev->Execute(SysWaitingList, InterWaitingList, CompIntenWaitingList);
+			dequeued = queEvents.dequeue(ev);
+		}
+		else
+			dequeued = false;
 	}
 	cout << endl;
 }
