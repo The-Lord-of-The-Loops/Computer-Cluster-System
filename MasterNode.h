@@ -78,10 +78,10 @@ public:
 	~MasterNode();
 
 	//Phase 2
-	void Simulate(string path);
+	void Simulate(const string path);
 	void Analyze(bool &exev);
-	void SaveToFile();
-	bool Check(bool exev);
+	void SaveToFile(const string inputfile);
+	bool Check(bool& exev);
 	void FindAssignedLastCycle();
 	bool SilentCheck();
 

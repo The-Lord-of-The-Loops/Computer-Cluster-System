@@ -1,0 +1,6 @@
+CT 	 ID 	 AT 	 ET
+
+6 	 4 	 1 	 4 	 1
+Processes: 1[S: 0, I: 1, C: 0]
+Machines: 4	[GP: 1, IO: 2, GU: 1]
+Avg Wait = 4, Avg Exec = 1

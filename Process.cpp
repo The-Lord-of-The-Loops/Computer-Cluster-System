@@ -78,3 +78,8 @@ Process::~Process()
 void Process::NotAssignedLastCycle() {
     AssignedLastCycle = false;
 }
+
+int Process::getCT()
+{
+    return ArrivalTime + WT + ExecutionTime;
+}

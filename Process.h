@@ -56,6 +56,7 @@ public:
     bool AssignedLastCycle = false;
     int AssignedMachineID;
     MachineType AssignedMachineType;
+    int getCT();
 
     ~Process();
 };

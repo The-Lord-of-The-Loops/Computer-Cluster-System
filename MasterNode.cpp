@@ -717,14 +717,14 @@ void MasterNode::ExecuteEvents(bool &exev) {
 	    UI::printString("\n");
 }
 
-void MasterNode::Simulate(string path) {
-    ReadNecessaryData(std::move(path));
+void MasterNode::Simulate(const string path) {
+    ReadNecessaryData(path);
 	PrintInfo();
     Mode = UI::getProgram_Mode();
     switch(Mode){
         case PROG_MODE(0):{
             //Interactive
-            bool exev = true;
+            static bool exev;
             while(Check(exev)){
                 Analyze(exev);
                 PrintInfo();
@@ -734,7 +734,7 @@ void MasterNode::Simulate(string path) {
         }
         case PROG_MODE(1):{
             //Step by step
-            bool exev = true;
+            static bool exev;
             while(Check(exev)){
                 Analyze(exev);
                 UI::sleep(1000);
@@ -744,18 +744,22 @@ void MasterNode::Simulate(string path) {
         }
         case PROG_MODE(2):{
             //Silent
-            bool exev = true;
+            static bool exev;
             while(Check(exev))
                 Analyze(exev);
 
             break;
         }
     }
-    SaveToFile();
+    SaveToFile(path);
 }
 
-bool MasterNode::Check(bool exev) {
-    return !(!exev && SysWaitingList.isEmpty() && InterWaitingList.isEmpty() && CompIntenWaitingList.isEmpty() &&
+bool MasterNode::Check(bool &exev) {
+	if (!exev) { // so the code doesn't stop on the first iteration, when the lists are still unpopulated.
+		exev = true;
+		return true;
+	}
+    return !(SysWaitingList.isEmpty() && InterWaitingList.isEmpty() && CompIntenWaitingList.isEmpty() &&
              SysInExecution.isEmpty() && InterInExecution.isEmpty() && CompInExecution.isEmpty());
 }
 
@@ -803,8 +807,38 @@ void MasterNode::Analyze(bool &exev) {
 
 }
 
-void MasterNode::SaveToFile() {
-    //Empty for now
+void MasterNode::SaveToFile(const string inputfile) {
+    
+	ofstream outputfile;
+	auto testnumberpos = inputfile.find_first_of(".")-1; // assuming input file is of the format testx.txt
+
+	outputfile.open("output"+inputfile.substr(testnumberpos));
+	outputfile << "CT \t ID \t AT \t ET\n";
+	Node<Process>* temp = CompletedProcesses.Head;
+	int noS = 0, noI = 0, noC = 0, totalWait = 0, totalExec = 0;
+	while (temp) { // InExecution list should be sorted by ET, and in turn CompletedProcesses list should be sorted by CT then ET.
+		outputfile << "\n"<<temp->getItem().getCT() << " \t " << temp->getItem().GetID() << " \t " << temp->getItem().GetArrivalTime() << " \t " << temp->getItem().WT << " \t " << temp->getItem().GetExecutionTime();
+		totalWait += temp->getItem().WT;
+		totalExec += temp->getItem().GetExecutionTime();
+		switch (temp->getItem().GetProcessType())
+		{
+		case System:
+			noS++;
+			break;
+		case Interactive:
+			noI++;
+			break;
+		case ComputationallyIntensive:
+			noC++;
+			break;
+		}
+		temp = temp->getNext();
+	}
+	outputfile << "\nProcesses: " << CompletedProcesses.count << "[S: " << noS << ", I: " << noI << ", C: " << noC << "]";
+	outputfile << "\nMachines: " << no_GP + no_IO + no_GU << "\t[GP: " << no_GP << ", IO: " << no_IO << ", GU: " << no_GU << "]";
+	outputfile << "\nAvg Wait = " << float(totalWait) / CompletedProcesses.count << ", Avg Exec = " << float(totalExec) / CompletedProcesses.count;
+
+	// ++percentage of autopromoted.
 }
 
 bool MasterNode::SilentCheck() {
