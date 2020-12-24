@@ -11,7 +11,6 @@ MasterNode::MasterNode()
 {
     SysWaitingList.count = 0;
 	clock = 0;
-	Mode = ProgramUI.getProgram_Mode();
 }
 
 void MasterNode::complete()
@@ -177,6 +176,7 @@ void MasterNode::dispatch()
 	}
 }
 
+
 bool MasterNode::dispatch(Process process)
 {
 	bool Assigned = false;
@@ -193,38 +193,29 @@ bool MasterNode::dispatch(Process process)
 
 void MasterNode::execute()
 {
-	bool executed = true;
 	Process process;
-	while (executed)
+	Node<Process>* p = SysInExecution.Head;
+	while (p)
 	{
-		if (!SysWaitingList.isEmpty()) {
-			process = SysWaitingList.Head->getItem();
-			executed = execute(process);
-		}
-		else
-			executed = false;
+	    process = p->getItem();
+	    execute(process);
+	    p = p->getNext();
 	}
 
-	executed = true;
-	while (executed)
+	p = InterInExecution.Head;
+	while (p)
 	{
-		if (!InterWaitingList.isEmpty()) {
-			process = InterWaitingList.Head->getItem();
-			executed = execute(process);
-		}
-		else
-			executed = false;
+	    process = p->getItem();
+	    execute(process);
+        p = p->getNext();
 	}
 
-	executed = true;
-	while (executed)
+    p = CompInExecution.Head;
+	while (p)
 	{
-		if (!CompIntenWaitingList.isEmpty()) {
-			CompIntenWaitingList.peek(process);
-			executed = execute(process);
-		}
-		else
-			executed = false;
+	    process = CompInExecution.Head->getItem();
+	    execute(process);
+        p = p->getNext();
 	}
 }
 
@@ -271,6 +262,8 @@ bool MasterNode::Assign(Process process)
 				process.WT = process.WT + mach.getResponseTime();
 				process.AssignedLastCycle = true;
 				process.AssignedMachine = &mach;
+				SysInExecution.InsertSorted(process,process.GetPriority());
+				SysWaitingList.DeleteNode(process.GetID());
 				return true;
 			}
 
@@ -282,6 +275,8 @@ bool MasterNode::Assign(Process process)
 			process.WT = process.WT + mach.getResponseTime();
             process.AssignedLastCycle = true;
             process.AssignedMachine = &mach;
+            SysInExecution.InsertSorted(process,process.GetPriority());
+            SysWaitingList.DeleteNode(process.GetID());
 			return true;
 		}
 
@@ -293,6 +288,8 @@ bool MasterNode::Assign(Process process)
 			process.WT = process.WT + mach.getResponseTime();
             process.AssignedLastCycle = true;
             process.AssignedMachine = &mach;
+            SysInExecution.InsertSorted(process,process.GetPriority());
+            SysWaitingList.DeleteNode(process.GetID());
 			return true;
 		}
 
@@ -308,6 +305,8 @@ bool MasterNode::Assign(Process process)
 			EX_IO_Machines.enqueue(mach, mach.inextime);
             process.AssignedLastCycle = true;
             process.AssignedMachine = &mach;
+            InterInExecution.InsertSorted(process,process.GetPriority());
+            InterWaitingList.DeleteNode(process.GetID());
 			return true;
 		}
 
@@ -318,6 +317,8 @@ bool MasterNode::Assign(Process process)
 			EX_GP_Machines.enqueue(mach, mach.inextime);
             process.AssignedLastCycle = true;
             process.AssignedMachine = &mach;
+            InterInExecution.InsertSorted(process,process.GetPriority());
+            InterWaitingList.DeleteNode(process.GetID());
 			return true;
 		}
 		return false;
@@ -331,6 +332,7 @@ bool MasterNode::Assign(Process process)
 			EX_GU_Machines.enqueue(mach, mach.inextime);
             process.AssignedLastCycle = true;
             process.AssignedMachine = &mach;
+            CompInExecution.InsertSorted(process,process.GetPriority());
 			return true;
 		}
 
@@ -404,7 +406,7 @@ void MasterNode::PrintAvMacIDs()
 	{
 		if (AV_GP_Machines.dequeue(mach))
 		{
-			ProgramUI.PrintGPMachine(mach.getID());
+			UI::PrintGPMachine(mach.getID());
 			gpque.enqueue(mach, mach.getResponseTime());
 		}
 	}
@@ -412,7 +414,7 @@ void MasterNode::PrintAvMacIDs()
 	{
 		if (AV_GU_Machines.dequeue(mach))
 		{
-            ProgramUI.PrintGPUMachine(mach.getID());
+            UI::PrintGPUMachine(mach.getID());
 			guque.enqueue(mach, mach.getResponseTime());
 		}
 	}
@@ -420,7 +422,7 @@ void MasterNode::PrintAvMacIDs()
 	{
 		if (AV_IO_Machines.dequeue(mach))
 		{
-            ProgramUI.PrintIOMachine(mach.getID());
+            UI::PrintIOMachine(mach.getID());
 			ioque.enqueue(mach, mach.getResponseTime());
 		}
 	}
@@ -597,27 +599,6 @@ void MasterNode::PrintCompletedIDs(int &NoInteractive, int &NoCompInt, int &NoSy
     cout << endl;
 }
 
-void MasterNode::Operate()
-{
-	
-	bool operate = true;
-
-	while (operate)
-	{
-		clock++;
-		//Assigning Events
-		ExecuteEvents();
-
-		//Executing Processes
-	
-
-		//Checking for operations
-		if (queEvents.isEmpty() && SysWaitingList.isEmpty() && InterWaitingList.isEmpty() && CompIntenWaitingList.isEmpty() && SysInExecution.isEmpty() && CompInExecution.isEmpty() && InterInExecution.isEmpty())
-		{
-			operate = false;
-		}
-	}
-}
 
 bool MasterNode::IsExecuting()
 {
@@ -692,7 +673,7 @@ void MasterNode::PrintInfo() {
     int NoInteractive, NoCompInt, NoSys;
     PrintCompletedIDs(NoInteractive, NoCompInt, NoSys);
     //Current Cycle
-    ProgramUI.PrintCycle(clock);
+    UI::PrintCycle(clock);
     //No of waiting processes of each type
     Printno_Wa_Process();
     //No of Available Processes of each type
@@ -703,48 +684,49 @@ void MasterNode::PrintInfo() {
     PrintCompletedIDs(NoInteractive, NoCompInt, NoSys);
 }
 
-void MasterNode::ExecuteEvents() {
-	cout << "Events yet to be executed: ";
-	bool dequeued = true;
+void MasterNode::ExecuteEvents(bool &exev) {
+    bool dequeued;
 	Event* ev;
 	while (!queEvents.isEmpty() && dequeued)
 	{
 		queEvents.peek(ev);
 		if (ev->ArrivalTime == clock)
-		{
-			ev->Execute(SysWaitingList, InterWaitingList, CompIntenWaitingList);
-			dequeued = queEvents.dequeue(ev);
-		}
-		else
-			dequeued = false;
+			{
+				ev->Execute(SysWaitingList, InterWaitingList, CompIntenWaitingList);
+				dequeued = queEvents.dequeue(ev);
+			}
 	}
-	cout << endl;
+	if(!SilentCheck())
+	    UI::printString("\n");
 }
 
-void MasterNode::Simulate() {
+void MasterNode::Simulate(string path) {
+    ReadNecessaryData(std::move(path));
+    Mode = UI::getProgram_Mode();
     switch(Mode){
         case PROG_MODE(0):{
             //Interactive
-            bool exev = false;
+            bool exev = true;
             while(Check(exev)){
                 Analyze(exev);
                 PrintInfo();
-                ProgramUI.WaitForUser();
+                UI::WaitForUser();
             }
             break;
         }
         case PROG_MODE(1):{
             //Step by step
-            bool exev = false;
+            bool exev = true;
             while(Check(exev)){
                 Analyze(exev);
+                UI::sleep(1000);
                 PrintInfo();
             }
             break;
         }
         case PROG_MODE(2):{
             //Silent
-            bool exev = false;
+            bool exev = true;
             while(Check(exev))
                 Analyze(exev);
 
@@ -789,3 +771,20 @@ void MasterNode::FindAssignedLastCycle() {
     }
 }
 
+void MasterNode::Analyze(bool &exev) {
+    //Reading data
+    clock++;
+    ExecuteEvents(exev);
+    //dispatch processes
+    dispatch();
+    //Complete processes
+    execute();
+}
+
+void MasterNode::SaveToFile() {
+    //Empty for now
+}
+
+bool MasterNode::SilentCheck() {
+    return (Mode == Silent);
+}

@@ -13,8 +13,6 @@ enum PROG_MODE{
     Silent
 };
 class UI {
-private:
-
 public:
     //Variables
 

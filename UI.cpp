@@ -1,6 +1,7 @@
 #include "UI.h"
 #include <iostream>
 #include <unistd.h>
+#include "MasterNode.h"
 
 void UI::printString(string text) {
     cout << text;
@@ -13,17 +14,17 @@ void UI::WaitForUser() {
 }
 
 PROG_MODE UI::getProgram_Mode() {
-    cout << "Please choose mode: \n1: Interactive \n2: Step by Step \n3:Silent" << endl;
+    cout << "Please choose mode: \n1: Interactive \n2: Step by Step \n3: Silent" << endl;
     int choice;
     cin >> choice;
     if(choice == 1){
-        return Interactive;
+        return interactive;
     } else if (choice == 2){
         return StepByStep;
     } else if (choice == 3){
         return Silent;
     }
-    return Interactive;
+    return interactive;
 }
 
 void UI::sleep(int milliseconds) {
@@ -102,4 +103,6 @@ void UI::PrintAssignedProcessToMachine(ProcessType processType, int ProcessID, M
     }
     UI::printString(to_string(ProcessID));
 }
+
+UI::UI() = default;
 
