@@ -402,29 +402,24 @@ void MasterNode::PrintAvMacIDs()
 	Machine mach;
 	PriorityQueue<Machine> gpque, guque, ioque;
 	cout << "Available Machines: ";
-	for (int i = 0; i < AV_GP_Machines.GetCount(); i++)
+	while (!AV_GP_Machines.isEmpty())
 	{
-		if (AV_GP_Machines.dequeue(mach))
-		{
-			UI::PrintGPMachine(mach.getID());
-			gpque.enqueue(mach, mach.getResponseTime());
-		}
+		AV_GP_Machines.dequeue(mach);
+		UI::PrintGPMachine(mach.getID());
+		gpque.enqueue(mach, mach.getResponseTime());
 	}
-	for (int i = 0; i < no_GU; i++)
+
+	while (!AV_GU_Machines.isEmpty())
 	{
-		if (AV_GU_Machines.dequeue(mach))
-		{
-            UI::PrintGPUMachine(mach.getID());
-			guque.enqueue(mach, mach.getResponseTime());
-		}
+		AV_GU_Machines.dequeue(mach);
+		UI::PrintGPUMachine(mach.getID());
+		guque.enqueue(mach, mach.getResponseTime());
 	}
-	for (int i = 0; i < no_IO; i++)
+	while (!AV_IO_Machines.isEmpty())
 	{
-		if (AV_IO_Machines.dequeue(mach))
-		{
-            UI::PrintIOMachine(mach.getID());
-			ioque.enqueue(mach, mach.getResponseTime());
-		}
+		AV_IO_Machines.dequeue(mach);
+		UI::PrintIOMachine(mach.getID());
+		ioque.enqueue(mach, mach.getResponseTime());
 	}
 	cout << endl;
 
@@ -612,20 +607,20 @@ void MasterNode::ReadNecessaryData(string infile)
 	Infile >> no_GP >> no_GU >> no_IO >> rsp_GP >> rsp_GU >> rsp_IO >> N >> BGP >> BGU >> BIO >> AutoP >> E;
     //cout << " " << no_GP << " " << no_GU << " " << no_IO << " " << rsp_GP << " " << rsp_GU << " " << rsp_IO << " " << N << " " << BGP << " " << BGU << " " << BIO << " " << AutoP << " " << E;
 	//creating Machines
-	for (int i = 0; i < no_GP; i++)
+	for (int i = 1; i < no_GP + 1; i++)
 	{
 		Machine GpMach(i, rsp_GP, N, BGP);
 		AV_GP_Machines.enqueue(GpMach,GpMach.getResponseTime());
 	}
-	for (int i = 0; i < no_GU; i++)
+	for (int i = 1; i < no_GU + 1; i++)
 	{
 		Machine GuMach(i + no_GP, rsp_GU, N, BGU);
-		AV_GP_Machines.enqueue(GuMach, GuMach.getResponseTime());
+		AV_GU_Machines.enqueue(GuMach, GuMach.getResponseTime());
 	}
-	for (int i = 0; i < no_IO; i++)
+	for (int i = 1; i < no_IO + 1; i++)
 	{
 		Machine IoMach(i + no_GP + no_GU, rsp_IO, N, BIO);
-		AV_GP_Machines.enqueue(IoMach, IoMach.getResponseTime());
+		AV_IO_Machines.enqueue(IoMach, IoMach.getResponseTime());
 	}
 	char EventType, processtype;
 	int at, id, dl, et, p;
@@ -685,16 +680,18 @@ void MasterNode::PrintInfo() {
 }
 
 void MasterNode::ExecuteEvents(bool &exev) {
-    bool dequeued;
+    bool dequeued = true;
 	Event* ev;
 	while (!queEvents.isEmpty() && dequeued)
 	{
 		queEvents.peek(ev);
 		if (ev->ArrivalTime == clock)
-			{
-				ev->Execute(SysWaitingList, InterWaitingList, CompIntenWaitingList);
-				dequeued = queEvents.dequeue(ev);
-			}
+		{
+			ev->Execute(SysWaitingList, InterWaitingList, CompIntenWaitingList);
+			dequeued = queEvents.dequeue(ev);
+		}
+		else
+			dequeued = false;
 	}
 	if(!SilentCheck())
 	    UI::printString("\n");
@@ -702,6 +699,7 @@ void MasterNode::ExecuteEvents(bool &exev) {
 
 void MasterNode::Simulate(string path) {
     ReadNecessaryData(std::move(path));
+	PrintInfo();
     Mode = UI::getProgram_Mode();
     switch(Mode){
         case PROG_MODE(0):{

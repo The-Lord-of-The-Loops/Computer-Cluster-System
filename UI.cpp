@@ -1,6 +1,12 @@
 #include "UI.h"
 #include <iostream>
+
+#ifdef _WIN32
+#include <Windows.h>
+#else
 #include <unistd.h>
+#endif
+
 #include "MasterNode.h"
 
 void UI::printString(string text) {
@@ -28,7 +34,7 @@ PROG_MODE UI::getProgram_Mode() {
 }
 
 void UI::sleep(int milliseconds) {
-    usleep(milliseconds*1000);
+    sleep(milliseconds*1000);
 }
 
 

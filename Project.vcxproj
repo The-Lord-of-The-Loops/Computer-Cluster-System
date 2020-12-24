@@ -34,6 +34,7 @@
     <ClInclude Include="PromotEvent.h" />
     <ClInclude Include="QueueADT.h" />
     <ClInclude Include="StackADT.h" />
+    <ClInclude Include="UI.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ArrivalEvent.cpp" />
@@ -44,6 +45,7 @@
     <ClCompile Include="MasterNode.cpp" />
     <ClCompile Include="Process.cpp" />
     <ClCompile Include="PromotEvent.cpp" />
+    <ClCompile Include="UI.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
