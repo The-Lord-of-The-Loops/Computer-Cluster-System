@@ -63,17 +63,18 @@ public:
     void PrintCompletedIDs(int &NoInteractive, int &NoCompInt, int &NoSys);
 	void ExecuteEvents(bool &exev);
 
-
 	//Underconstruction
 	void complete();
-	bool complete(Process process);
-	bool complete(Machine machine);
+	bool complete(Process &process);
+	bool complete(int ID, MachineType type);
 	void dispatch();
-	bool dispatch(Process process);
+	bool dispatch(Process &process);
 	void execute();
 	bool execute(Process process);
-	bool Assign(Process process);
+	bool Assign(Process &process);
 	bool IsExecuting();
+	void Checkup();
+	void AutoPromte();
 	~MasterNode();
 
 	//Phase 2

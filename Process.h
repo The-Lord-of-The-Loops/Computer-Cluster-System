@@ -31,9 +31,13 @@ public:
         ExecutionTime = process.ExecutionTime;
         Priority = process.Priority;
         ID = process.ID;
+        WT = process.WT;
+        AssignedLastCycle = process.AssignedLastCycle;
+        AssignedMachineID = process.AssignedMachineID;
+        AssignedMachineType = process.AssignedMachineType;
     }
     //Setters
-    int WT = DispatchLatency;
+    int WT = 0;
     void SetArrivalTime(int ArrivalTime);
     void SetProcessType(ProcessType Type);
     void SetDispatchLatency(int DispatchLatency);
@@ -50,7 +54,8 @@ public:
     ProcessStatus getStatus();
     void NotAssignedLastCycle();
     bool AssignedLastCycle = false;
-    Machine* AssignedMachine;
+    int AssignedMachineID;
+    MachineType AssignedMachineType;
 
     ~Process();
 };

@@ -15,7 +15,7 @@ private:
 public:
 	//Machine();
 	Machine();
-	Machine(int ID, int rsp, int N, int B);
+	Machine(int ID, int rsp, int N, int B, MachineType type);
 
 	int inextime;
 	//setters

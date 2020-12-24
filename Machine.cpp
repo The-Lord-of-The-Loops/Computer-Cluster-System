@@ -4,7 +4,7 @@ Machine::Machine()
 {
 }
 
-Machine::Machine(int ID, int rsp, int N, int B)
+Machine::Machine(int ID, int rsp, int N, int B, MachineType type)
 { 
 	this->ID = ID;
 	ResponseTime = rsp;
@@ -12,6 +12,7 @@ Machine::Machine(int ID, int rsp, int N, int B)
 	N_bresp = N;
 	Available = true;
 	inextime = 0;
+	this->Type = type;
 }
 
 void Machine::setRebootDuration(int RebootDuration)

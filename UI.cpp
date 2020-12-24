@@ -1,11 +1,8 @@
 #include "UI.h"
 #include <iostream>
+#include <chrono>
+#include <thread>
 
-#ifdef _WIN32
-#include <Windows.h>
-#else
-#include <unistd.h>
-#endif
 
 #include "MasterNode.h"
 
@@ -34,7 +31,7 @@ PROG_MODE UI::getProgram_Mode() {
 }
 
 void UI::sleep(int milliseconds) {
-    sleep(milliseconds*1000);
+    this_thread::sleep_for(chrono::milliseconds(milliseconds));
 }
 
 
@@ -107,7 +104,7 @@ void UI::PrintAssignedProcessToMachine(ProcessType processType, int ProcessID, M
             break;
         }
     }
-    UI::printString(to_string(ProcessID));
+    UI::printString(to_string(ProcessID)+ " ");
 }
 
 UI::UI() = default;

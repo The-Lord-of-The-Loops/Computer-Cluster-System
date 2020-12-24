@@ -49,7 +49,7 @@ void MasterNode::complete()
 		else
 			completed = false;
 	}
-	
+	/*
 	completed = true;
 	while (completed)
 	{
@@ -82,9 +82,10 @@ void MasterNode::complete()
 		else
 			completed = false;
 	}
+	*/
 }
 
-bool MasterNode::complete(Process process)
+bool MasterNode::complete(Process &process)
 {
 	bool completed = false;
 	if (process.GetArrivalTime() + process.WT + process.GetExecutionTime() == clock)
@@ -94,18 +95,21 @@ bool MasterNode::complete(Process process)
 		case System:
 			process = SysInExecution.Head->getItem();
 			CompletedProcesses.InsertLast(process);
+			complete(process.AssignedMachineID,process.AssignedMachineType);
 			SysInExecution.DeleteFirst();
 			break;
 
 		case Interactive:
 			process = InterInExecution.Head->getItem();
 			CompletedProcesses.InsertLast(process);
+			complete(process.AssignedMachineID, process.AssignedMachineType);
 			InterInExecution.DeleteFirst();
 			break;
 
 		case ComputationallyIntensive:
 			process = CompInExecution.Head->getItem();
 			CompletedProcesses.InsertLast(process);
+			complete(process.AssignedMachineID, process.AssignedMachineType);
 			CompInExecution.DeleteFirst();
 			break;
 
@@ -117,29 +121,36 @@ bool MasterNode::complete(Process process)
 	return completed;
 }
 
-bool MasterNode::complete(Machine machine)
+bool MasterNode::complete(int ID, MachineType type)
 {
 	bool completed = false;
-	if (machine.inextime == clock)
-	{
-		switch (machine.getMachineType()) {
+	Machine machine;
+		switch (type) {
 		case GP:
 			EX_GP_Machines.dequeue(machine);
-			AV_GP_Machines.enqueue(machine, machine.getResponseTime());
+			if(machine.getID() == ID)
+				AV_GP_Machines.enqueue(machine, machine.getResponseTime());
+			else
+				EX_GP_Machines.enqueue(machine, machine.getResponseTime());
 			break;
 
 		case GU:
 			EX_GU_Machines.dequeue(machine);
-			AV_GU_Machines.enqueue(machine, machine.getResponseTime());
+			if (machine.getID() == ID)
+				AV_GU_Machines.enqueue(machine, machine.getResponseTime());
+			else
+				EX_GU_Machines.enqueue(machine, machine.getResponseTime());
 			break;
 
 		case IO:
 			EX_IO_Machines.dequeue(machine);
-			AV_IO_Machines.enqueue(machine, machine.getResponseTime());
+			if (machine.getID() == ID)
+				AV_IO_Machines.enqueue(machine, machine.getResponseTime());
+			else
+				EX_IO_Machines.enqueue(machine, machine.getResponseTime());
 			break;
 		}
 		completed = true;
-	}
 	return completed;
 }
 
@@ -153,8 +164,8 @@ void MasterNode::dispatch()
 	while (dispatched && p)
 	{
 			process = p->getItem();
-			dispatched = dispatch(process);
 			p = p->getNext();
+			dispatched = dispatch(process);
 	}
 	
 	dispatched = true;
@@ -162,8 +173,8 @@ void MasterNode::dispatch()
 	while (dispatched && p)
 	{
 			process = p->getItem();
-			dispatched = dispatch(process);
 			p = p->getNext();
+			dispatched = dispatch(process);
 	}
 
 	dispatched = true;
@@ -177,10 +188,10 @@ void MasterNode::dispatch()
 }
 
 
-bool MasterNode::dispatch(Process process)
+bool MasterNode::dispatch(Process &process)
 {
 	bool Assigned = false;
-	if (process.getStatus() == Waiting && process.GetArrivalTime() + process.WT == clock)
+	if (process.getStatus() == Waiting && process.GetArrivalTime() + process.WT + process.GetDispatchLatency() == clock)
 	{
 		Assigned = Assign(process);
 		if (!Assigned)
@@ -198,24 +209,24 @@ void MasterNode::execute()
 	while (p)
 	{
 	    process = p->getItem();
+		p = p->getNext();
 	    execute(process);
-	    p = p->getNext();
 	}
 
 	p = InterInExecution.Head;
 	while (p)
 	{
 	    process = p->getItem();
-	    execute(process);
-        p = p->getNext();
+		p = p->getNext();
+		execute(process);
 	}
 
     p = CompInExecution.Head;
 	while (p)
 	{
 	    process = CompInExecution.Head->getItem();
+		p = p->getNext();
 	    execute(process);
-        p = p->getNext();
 	}
 }
 
@@ -249,7 +260,7 @@ bool MasterNode::execute(Process process)
 	return executed;
 }
 
-bool MasterNode::Assign(Process process)
+bool MasterNode::Assign(Process &process)
 {
 	Machine mach;
 	if (process.GetProcessType() == System)
@@ -257,11 +268,12 @@ bool MasterNode::Assign(Process process)
 		if (!AV_GP_Machines.isEmpty())
 			{
 				AV_GP_Machines.dequeue(mach);
-				mach.inextime = clock + mach.getResponseTime() + process.GetExecutionTime();
+				mach.inextime = clock + process.GetDispatchLatency() + mach.getResponseTime() + process.GetExecutionTime();
 				EX_GP_Machines.enqueue(mach, mach.inextime);
-				process.WT = process.WT + mach.getResponseTime();
+				process.WT = process.WT + process.GetDispatchLatency() + mach.getResponseTime();
 				process.AssignedLastCycle = true;
-				process.AssignedMachine = &mach;
+				process.AssignedMachineID = mach.getID();
+				process.AssignedMachineType = mach.getMachineType();
 				SysInExecution.InsertSorted(process,process.GetPriority());
 				SysWaitingList.DeleteNode(process.GetID());
 				return true;
@@ -270,11 +282,12 @@ bool MasterNode::Assign(Process process)
 		if (!AV_IO_Machines.isEmpty())
 		{
 			AV_IO_Machines.dequeue(mach);
-			mach.inextime = clock + mach.getResponseTime() + process.GetExecutionTime();
+			mach.inextime = clock + process.GetDispatchLatency() + mach.getResponseTime() + process.GetExecutionTime();
 			EX_IO_Machines.enqueue(mach, mach.inextime);
-			process.WT = process.WT + mach.getResponseTime();
+			process.WT = process.WT + process.GetDispatchLatency() + mach.getResponseTime();
             process.AssignedLastCycle = true;
-            process.AssignedMachine = &mach;
+			process.AssignedMachineID = mach.getID();
+			process.AssignedMachineType = mach.getMachineType();
             SysInExecution.InsertSorted(process,process.GetPriority());
             SysWaitingList.DeleteNode(process.GetID());
 			return true;
@@ -283,11 +296,12 @@ bool MasterNode::Assign(Process process)
 		if (!AV_GU_Machines.isEmpty())
 		{
 			AV_GU_Machines.dequeue(mach);
-			mach.inextime = clock + mach.getResponseTime() + process.GetExecutionTime();
+			mach.inextime = clock + process.GetDispatchLatency() + mach.getResponseTime() + process.GetExecutionTime();
 			EX_GU_Machines.enqueue(mach, mach.inextime);
-			process.WT = process.WT + mach.getResponseTime();
+			process.WT = process.WT + process.GetDispatchLatency() + mach.getResponseTime();
             process.AssignedLastCycle = true;
-            process.AssignedMachine = &mach;
+			process.AssignedMachineID = mach.getID();
+			process.AssignedMachineType = mach.getMachineType();
             SysInExecution.InsertSorted(process,process.GetPriority());
             SysWaitingList.DeleteNode(process.GetID());
 			return true;
@@ -301,10 +315,12 @@ bool MasterNode::Assign(Process process)
 		if (!AV_IO_Machines.isEmpty())
 		{
 			AV_IO_Machines.dequeue(mach);
-			mach.inextime = clock + mach.getResponseTime() + process.GetExecutionTime();
+			mach.inextime = clock + process.GetDispatchLatency() + mach.getResponseTime() + process.GetExecutionTime();
 			EX_IO_Machines.enqueue(mach, mach.inextime);
+			process.WT = process.WT + process.GetDispatchLatency() + mach.getResponseTime();
             process.AssignedLastCycle = true;
-            process.AssignedMachine = &mach;
+			process.AssignedMachineID = mach.getID();
+			process.AssignedMachineType = mach.getMachineType();
             InterInExecution.InsertSorted(process,process.GetPriority());
             InterWaitingList.DeleteNode(process.GetID());
 			return true;
@@ -313,10 +329,12 @@ bool MasterNode::Assign(Process process)
 		if (!AV_GP_Machines.isEmpty())
 		{
 			AV_GP_Machines.dequeue(mach);
-			mach.inextime = clock + mach.getResponseTime() + process.GetExecutionTime();
+			mach.inextime = clock + process.GetDispatchLatency() + mach.getResponseTime() + process.GetExecutionTime();
 			EX_GP_Machines.enqueue(mach, mach.inextime);
+			process.WT = process.WT + process.GetDispatchLatency() + mach.getResponseTime();
             process.AssignedLastCycle = true;
-            process.AssignedMachine = &mach;
+			process.AssignedMachineID = mach.getID();
+			process.AssignedMachineType = mach.getMachineType();
             InterInExecution.InsertSorted(process,process.GetPriority());
             InterWaitingList.DeleteNode(process.GetID());
 			return true;
@@ -328,10 +346,12 @@ bool MasterNode::Assign(Process process)
 		if (!AV_GU_Machines.isEmpty())
 		{
 			AV_GU_Machines.dequeue(mach);
-			mach.inextime = clock + mach.getResponseTime() + process.GetExecutionTime();
+			mach.inextime = clock + process.GetDispatchLatency() + mach.getResponseTime() + process.GetExecutionTime();
 			EX_GU_Machines.enqueue(mach, mach.inextime);
+			process.WT = process.WT + process.GetDispatchLatency() + mach.getResponseTime();
             process.AssignedLastCycle = true;
-            process.AssignedMachine = &mach;
+			process.AssignedMachineID = mach.getID();
+			process.AssignedMachineType = mach.getMachineType();
             CompInExecution.InsertSorted(process,process.GetPriority());
 			return true;
 		}
@@ -609,17 +629,17 @@ void MasterNode::ReadNecessaryData(string infile)
 	//creating Machines
 	for (int i = 1; i < no_GP + 1; i++)
 	{
-		Machine GpMach(i, rsp_GP, N, BGP);
+		Machine GpMach(i, rsp_GP, N, BGP, GP);
 		AV_GP_Machines.enqueue(GpMach,GpMach.getResponseTime());
 	}
 	for (int i = 1; i < no_GU + 1; i++)
 	{
-		Machine GuMach(i + no_GP, rsp_GU, N, BGU);
+		Machine GuMach(i + no_GP, rsp_GU, N, BGU,GU);
 		AV_GU_Machines.enqueue(GuMach, GuMach.getResponseTime());
 	}
 	for (int i = 1; i < no_IO + 1; i++)
 	{
-		Machine IoMach(i + no_GP + no_GU, rsp_IO, N, BIO);
+		Machine IoMach(i + no_GP + no_GU, rsp_IO, N, BIO,IO);
 		AV_IO_Machines.enqueue(IoMach, IoMach.getResponseTime());
 	}
 	char EventType, processtype;
@@ -676,7 +696,7 @@ void MasterNode::PrintInfo() {
     //Type and ID of All machines and processes assigned last cycle only
     FindAssignedLastCycle();
     //Total no. of processes completed so far of each type
-    PrintCompletedIDs(NoInteractive, NoCompInt, NoSys);
+    Printno_Completed(NoInteractive, NoCompInt, NoSys);
 }
 
 void MasterNode::ExecuteEvents(bool &exev) {
@@ -740,12 +760,13 @@ bool MasterNode::Check(bool exev) {
 }
 
 void MasterNode::FindAssignedLastCycle() {
-    Node<Process>* p = SysInExecution.Head;
+	cout << "Assigned Last cycle: ";
+	Node<Process>* p = SysInExecution.Head;
     while(p){
         if(p->getItem().AssignedLastCycle){
             Process process = p->getItem();
-            process.NotAssignedLastCycle();
-            UI::PrintAssignedProcessToMachine(process.GetProcessType(),process.GetID(),process.AssignedMachine->getMachineType(),process.AssignedMachine->getID());
+            p->getItem().NotAssignedLastCycle();
+            UI::PrintAssignedProcessToMachine(process.GetProcessType(),process.GetID(),process.AssignedMachineType,process.AssignedMachineID);
         }
         p = p->getNext();
     }
@@ -753,20 +774,21 @@ void MasterNode::FindAssignedLastCycle() {
     while(p){
         if(p->getItem().AssignedLastCycle){
             Process process = p->getItem();
-            process.NotAssignedLastCycle();
-            UI::PrintAssignedProcessToMachine(process.GetProcessType(),process.GetID(),process.AssignedMachine->getMachineType(),process.AssignedMachine->getID());
-        }
+			p->getItem().NotAssignedLastCycle();
+			UI::PrintAssignedProcessToMachine(process.GetProcessType(), process.GetID(), process.AssignedMachineType, process.AssignedMachineID);
+		}
         p = p->getNext();
     }
     p = CompInExecution.Head;
     while(p){
         if(p->getItem().AssignedLastCycle){
             Process process = p->getItem();
-            process.NotAssignedLastCycle();
-            UI::PrintAssignedProcessToMachine(process.GetProcessType(),process.GetID(),process.AssignedMachine->getMachineType(),process.AssignedMachine->getID());
-        }
+			p->getItem().NotAssignedLastCycle();
+			UI::PrintAssignedProcessToMachine(process.GetProcessType(), process.GetID(), process.AssignedMachineType, process.AssignedMachineID);
+		}
         p = p->getNext();
     }
+	cout << endl;
 }
 
 void MasterNode::Analyze(bool &exev) {
@@ -776,7 +798,9 @@ void MasterNode::Analyze(bool &exev) {
     //dispatch processes
     dispatch();
     //Complete processes
-    execute();
+    complete();
+	//
+
 }
 
 void MasterNode::SaveToFile() {
