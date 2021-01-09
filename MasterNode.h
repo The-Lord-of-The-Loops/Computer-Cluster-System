@@ -25,6 +25,7 @@ private:
 	int BGP, BGU, BIO; // reboot duration for each type in cycles
 	int AutoP;			//number of cycles after which an interactive process is promoted to a system process
 	int E;				// total number of events
+	int prom = 0;
 
 	PriorityQueue<Machine> AV_GP_Machines; //array of GP Machines
 	PriorityQueue<Machine> AV_GU_Machines; //array of GU Machines
@@ -90,7 +91,9 @@ public:
 	//To Sorted linked list
 
 	LinkedList<Process> InterWaitingList;
+
 	LinkedQueue<Process> CompIntenWaitingList;
+
 
 
 };

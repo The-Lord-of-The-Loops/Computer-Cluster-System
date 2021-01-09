@@ -700,7 +700,7 @@ public:
 	    }
 
 		Node<Process>* p = Head;
-		if (p == Head && item > p->getItem().GetPriority())
+		if (p == Head && item < p->getItem().GetPriority())
 		{
 			Node<Process>* inserted = new Node<Process>(process);
 			inserted->setNext(p);
@@ -713,7 +713,7 @@ public:
 		{
 			p = p->getNext();
 
-			if (item > p->getItem().GetPriority()) {
+			if (item < p->getItem().GetPriority()) {
 				Node<Process>* inserted = new Node<Process>(process);
 				inserted->setNext(p);
 				R->setNext(inserted);
@@ -727,6 +727,42 @@ public:
 		count++;
 		return true;
 	}
+
+	bool InsertExcecutionSorted(Process process, int item) {
+		if (isEmpty()) {
+			InsertBeg(process);
+			return true;
+		}
+
+		Node<Process>* p = Head;
+		if (p == Head && item < p->getItem().Executionpriority)
+		{
+			Node<Process>* inserted = new Node<Process>(process);
+			inserted->setNext(p);
+			Head = inserted;
+			count++;
+			return true;
+		}
+		Node<Process>* R = Head;
+		while (p->getNext())
+		{
+			p = p->getNext();
+
+			if (item < p->getItem().Executionpriority) {
+				Node<Process>* inserted = new Node<Process>(process);
+				inserted->setNext(p);
+				R->setNext(inserted);
+				count++;
+				return true;
+			}
+			R = R->getNext();
+		}
+		Node<Process>* inserted = new Node<Process>(process);
+		p->setNext(inserted);
+		count++;
+		return true;
+	}
+
 
 	void DeleteFirst() {
 		//cout << "\nDeleting the first element" << endl;

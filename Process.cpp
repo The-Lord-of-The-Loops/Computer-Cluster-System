@@ -1,5 +1,7 @@
 #include "Process.h"
 
+int Process::intertot = 0;
+
 Process::Process()
 {
 }
@@ -10,9 +12,12 @@ this->ID = ID;
 this-> Type = Type;
 this-> DispatchLatency = DispatchLatency;
 this-> ExecutionTime = ExecutionTime;
-this-> Priority = Priority;
+this-> Priority = ((int)2*(ArrivalTime + DispatchLatency) + (int)4*ExecutionTime + Priority);
 Status = Waiting;
+if (Type == Interactive)
+    intertot++;
 }
+
 
 void Process::SetArrivalTime(int ArrivalTime) {
 this-> ArrivalTime = ArrivalTime;
@@ -65,6 +70,11 @@ int Process::GetID()
     return ID;
 }
 
+int Process::Getinter()
+{
+    return intertot;
+}
+
 ProcessStatus Process::getStatus()
 {
     return Status;
@@ -73,6 +83,8 @@ ProcessStatus Process::getStatus()
 
 Process::~Process()
 {
+    if(Type == Interactive)
+    intertot--;
 }
 
 void Process::NotAssignedLastCycle() {

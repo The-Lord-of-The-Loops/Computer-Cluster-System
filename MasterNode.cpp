@@ -88,7 +88,7 @@ void MasterNode::complete()
 bool MasterNode::complete(Process &process)
 {
 	bool completed = false;
-	if (process.GetArrivalTime() + process.WT + process.GetExecutionTime() == clock)
+	if (process.Assigncycle + process.GetExecutionTime() == clock)
 	{
 		switch (process.GetProcessType())
 		{
@@ -159,13 +159,17 @@ void MasterNode::dispatch()
 	bool dispatched = true;
 	Process process;
 	Node<Process>* p;
-
+	Node<Process>* R;
 	p = SysWaitingList.Head;
 	while (dispatched && p)
 	{
 			process = p->getItem();
-			p = p->getNext();
+			R = p->getNext();
 			dispatched = dispatch(process);
+			if(!dispatched)
+				p->setItem(process);
+			p = R;
+
 	}
 	
 	dispatched = true;
@@ -173,10 +177,13 @@ void MasterNode::dispatch()
 	while (dispatched && p)
 	{
 			process = p->getItem();
-			p = p->getNext();
+			R = p->getNext();
 			dispatched = dispatch(process);
+			if (!dispatched)
+				p->setItem(process);
+			p = R;
 	}
-
+	Process temp;
 	dispatched = true;
 	while (dispatched && !CompIntenWaitingList.isEmpty())
 	{
@@ -184,6 +191,10 @@ void MasterNode::dispatch()
 		dispatched = dispatch(process);
 		if (dispatched)
 			CompIntenWaitingList.dequeue(process);
+		else
+			CompIntenWaitingList.editpeeked(process);
+			
+
 	}
 }
 
@@ -191,13 +202,15 @@ void MasterNode::dispatch()
 bool MasterNode::dispatch(Process &process)
 {
 	bool Assigned = false;
-	if (process.getStatus() == Waiting && process.GetArrivalTime() + process.WT + process.GetDispatchLatency() == clock)
+	
+	if ((process.GetArrivalTime() + process.GetDispatchLatency()) <= clock)
 	{
 		Assigned = Assign(process);
 		if (!Assigned)
+		{
 			process.WT++;
-		else
 			process.SetStatus(Dispatched);
+		}
 	}
 	return Assigned;
 }
@@ -233,7 +246,7 @@ void MasterNode::execute()
 bool MasterNode::execute(Process process)
 {
 	bool executed = false;
-	if (process.getStatus() == Dispatched && process.WT + process.GetArrivalTime() == clock) {
+	if (process.getStatus() == Dispatched && process.WT + process.GetArrivalTime() + process.GetDispatchLatency() == clock) {
 		switch (process.GetProcessType()) {
 		case System:
 
@@ -268,13 +281,17 @@ bool MasterNode::Assign(Process &process)
 		if (!AV_GP_Machines.isEmpty())
 			{
 				AV_GP_Machines.dequeue(mach);
-				mach.inextime = clock + process.GetDispatchLatency() + mach.getResponseTime() + process.GetExecutionTime();
+				mach.inextime = clock + mach.getResponseTime() + process.GetExecutionTime();
 				EX_GP_Machines.enqueue(mach, mach.inextime);
-				process.WT = process.WT + process.GetDispatchLatency() + mach.getResponseTime();
+				process.WT = process.WT + mach.getResponseTime();
+				process.SetExecutionTime(process.GetExecutionTime() + mach.getResponseTime());
+				process.Assigncycle = clock;
 				process.AssignedLastCycle = true;
 				process.AssignedMachineID = mach.getID();
 				process.AssignedMachineType = mach.getMachineType();
-				SysInExecution.InsertSorted(process,process.GetPriority());
+				process.SetStatus(InExecution);
+				process.Executionpriority = clock + process.GetExecutionTime();
+				SysInExecution.InsertExcecutionSorted(process,process.Executionpriority);
 				SysWaitingList.DeleteNode(process.GetID());
 				return true;
 			}
@@ -282,13 +299,16 @@ bool MasterNode::Assign(Process &process)
 		if (!AV_IO_Machines.isEmpty())
 		{
 			AV_IO_Machines.dequeue(mach);
-			mach.inextime = clock + process.GetDispatchLatency() + mach.getResponseTime() + process.GetExecutionTime();
+			mach.inextime = clock + mach.getResponseTime() + process.GetExecutionTime();
 			EX_IO_Machines.enqueue(mach, mach.inextime);
-			process.WT = process.WT + process.GetDispatchLatency() + mach.getResponseTime();
+			process.WT = process.WT + mach.getResponseTime();
+			process.SetExecutionTime(process.GetExecutionTime() + mach.getResponseTime());
+			process.Assigncycle = clock;
             process.AssignedLastCycle = true;
 			process.AssignedMachineID = mach.getID();
 			process.AssignedMachineType = mach.getMachineType();
-            SysInExecution.InsertSorted(process,process.GetPriority());
+			process.Executionpriority = clock + process.GetExecutionTime();
+            SysInExecution.InsertExcecutionSorted(process,process.Executionpriority);
             SysWaitingList.DeleteNode(process.GetID());
 			return true;
 		}
@@ -296,13 +316,16 @@ bool MasterNode::Assign(Process &process)
 		if (!AV_GU_Machines.isEmpty())
 		{
 			AV_GU_Machines.dequeue(mach);
-			mach.inextime = clock + process.GetDispatchLatency() + mach.getResponseTime() + process.GetExecutionTime();
+			mach.inextime = clock + mach.getResponseTime() + process.GetExecutionTime();
 			EX_GU_Machines.enqueue(mach, mach.inextime);
-			process.WT = process.WT + process.GetDispatchLatency() + mach.getResponseTime();
+			process.WT = process.WT + mach.getResponseTime();
+			process.SetExecutionTime(process.GetExecutionTime() + mach.getResponseTime());
+			process.Assigncycle = clock;
             process.AssignedLastCycle = true;
 			process.AssignedMachineID = mach.getID();
 			process.AssignedMachineType = mach.getMachineType();
-            SysInExecution.InsertSorted(process,process.GetPriority());
+			process.Executionpriority = clock + process.GetExecutionTime();
+            SysInExecution.InsertExcecutionSorted(process,process.Executionpriority);
             SysWaitingList.DeleteNode(process.GetID());
 			return true;
 		}
@@ -315,13 +338,16 @@ bool MasterNode::Assign(Process &process)
 		if (!AV_IO_Machines.isEmpty())
 		{
 			AV_IO_Machines.dequeue(mach);
-			mach.inextime = clock + process.GetDispatchLatency() + mach.getResponseTime() + process.GetExecutionTime();
+			mach.inextime = clock + mach.getResponseTime() + process.GetExecutionTime();
 			EX_IO_Machines.enqueue(mach, mach.inextime);
-			process.WT = process.WT + process.GetDispatchLatency() + mach.getResponseTime();
+			process.WT = process.WT + mach.getResponseTime();
+			process.SetExecutionTime(process.GetExecutionTime() + mach.getResponseTime());
+			process.Assigncycle = clock;
             process.AssignedLastCycle = true;
 			process.AssignedMachineID = mach.getID();
 			process.AssignedMachineType = mach.getMachineType();
-            InterInExecution.InsertSorted(process,process.GetPriority());
+			process.Executionpriority = clock + process.GetExecutionTime();
+            InterInExecution.InsertExcecutionSorted(process,process.Executionpriority);
             InterWaitingList.DeleteNode(process.GetID());
 			return true;
 		}
@@ -329,13 +355,16 @@ bool MasterNode::Assign(Process &process)
 		if (!AV_GP_Machines.isEmpty())
 		{
 			AV_GP_Machines.dequeue(mach);
-			mach.inextime = clock + process.GetDispatchLatency() + mach.getResponseTime() + process.GetExecutionTime();
+			mach.inextime = clock + mach.getResponseTime() + process.GetExecutionTime();
 			EX_GP_Machines.enqueue(mach, mach.inextime);
-			process.WT = process.WT + process.GetDispatchLatency() + mach.getResponseTime();
+			process.WT = process.WT + mach.getResponseTime();
+			process.SetExecutionTime(process.GetExecutionTime() + mach.getResponseTime());
+			process.Assigncycle = clock;
             process.AssignedLastCycle = true;
 			process.AssignedMachineID = mach.getID();
 			process.AssignedMachineType = mach.getMachineType();
-            InterInExecution.InsertSorted(process,process.GetPriority());
+			process.Executionpriority = clock + process.GetExecutionTime();
+            InterInExecution.InsertExcecutionSorted(process,process.Executionpriority);
             InterWaitingList.DeleteNode(process.GetID());
 			return true;
 		}
@@ -346,13 +375,16 @@ bool MasterNode::Assign(Process &process)
 		if (!AV_GU_Machines.isEmpty())
 		{
 			AV_GU_Machines.dequeue(mach);
-			mach.inextime = clock + process.GetDispatchLatency() + mach.getResponseTime() + process.GetExecutionTime();
+			mach.inextime = clock + mach.getResponseTime() + process.GetExecutionTime();
 			EX_GU_Machines.enqueue(mach, mach.inextime);
-			process.WT = process.WT + process.GetDispatchLatency() + mach.getResponseTime();
+			process.WT = process.WT + mach.getResponseTime();
+			process.SetExecutionTime(process.GetExecutionTime() + mach.getResponseTime());
+			process.Assigncycle = clock;
             process.AssignedLastCycle = true;
 			process.AssignedMachineID = mach.getID();
 			process.AssignedMachineType = mach.getMachineType();
-            CompInExecution.InsertSorted(process,process.GetPriority());
+			process.Executionpriority = clock + process.GetExecutionTime();
+            CompInExecution.InsertExcecutionSorted(process,process.Executionpriority);
 			return true;
 		}
 
@@ -624,7 +656,7 @@ void MasterNode::ReadNecessaryData(string infile)
 {
 	ifstream Infile;
 	Infile.open(infile);
-	Infile >> no_GP >> no_GU >> no_IO >> rsp_GP >> rsp_GU >> rsp_IO >> N >> BGP >> BGU >> BIO >> AutoP >> E;
+	Infile >> no_GP >> no_IO >> no_GU >> rsp_GP >> rsp_IO >> rsp_GU >> N >> BGP >> BIO >> BGU >> AutoP >> E;
     //cout << " " << no_GP << " " << no_GU << " " << no_IO << " " << rsp_GP << " " << rsp_GU << " " << rsp_IO << " " << N << " " << BGP << " " << BGU << " " << BIO << " " << AutoP << " " << E;
 	//creating Machines
 	for (int i = 1; i < no_GP + 1; i++)
@@ -673,12 +705,35 @@ void MasterNode::ReadNecessaryData(string infile)
 	Infile.close();
 }
 
+void MasterNode::AutoPromte()
+{
+	Process process;
+	Node<Process>* p;
+	Node<Process>* R;
+	p = InterWaitingList.Head;
+	bool promoted = true;
+	while (promoted && p)
+	{
+		process = p->getItem();
+		R = p->getNext();
+		if (process.WT == AutoP)
+		{
+			process.SetProcessType(System);
+			SysWaitingList.InsertSorted(process, process.GetPriority());
+			InterWaitingList.DeleteNode(process.GetID());
+			prom++;
+		}
+		else
+			promoted = false;
+	}
+}
+
 MasterNode::~MasterNode()
 {
 }
 
 void MasterNode::PrintInfo() {
-    //Available Machines
+	//Available Machines
     PrintAvMacIDs();
     //Waiting Processes
     PrintWaProcIDs();
@@ -760,7 +815,7 @@ bool MasterNode::Check(bool &exev) {
 		return true;
 	}
     return !(SysWaitingList.isEmpty() && InterWaitingList.isEmpty() && CompIntenWaitingList.isEmpty() &&
-             SysInExecution.isEmpty() && InterInExecution.isEmpty() && CompInExecution.isEmpty());
+             SysInExecution.isEmpty() && InterInExecution.isEmpty() && CompInExecution.isEmpty() && queEvents.isEmpty());
 }
 
 void MasterNode::FindAssignedLastCycle() {
@@ -769,8 +824,9 @@ void MasterNode::FindAssignedLastCycle() {
     while(p){
         if(p->getItem().AssignedLastCycle){
             Process process = p->getItem();
-            p->getItem().NotAssignedLastCycle();
-            UI::PrintAssignedProcessToMachine(process.GetProcessType(),process.GetID(),process.AssignedMachineType,process.AssignedMachineID);
+           process.NotAssignedLastCycle();
+		   p->setItem(process);
+           UI::PrintAssignedProcessToMachine(process.GetProcessType(),process.GetID(),process.AssignedMachineType,process.AssignedMachineID);
         }
         p = p->getNext();
     }
@@ -778,7 +834,8 @@ void MasterNode::FindAssignedLastCycle() {
     while(p){
         if(p->getItem().AssignedLastCycle){
             Process process = p->getItem();
-			p->getItem().NotAssignedLastCycle();
+			process.NotAssignedLastCycle();
+			p->setItem(process);
 			UI::PrintAssignedProcessToMachine(process.GetProcessType(), process.GetID(), process.AssignedMachineType, process.AssignedMachineID);
 		}
         p = p->getNext();
@@ -787,7 +844,8 @@ void MasterNode::FindAssignedLastCycle() {
     while(p){
         if(p->getItem().AssignedLastCycle){
             Process process = p->getItem();
-			p->getItem().NotAssignedLastCycle();
+			process.NotAssignedLastCycle();
+			p->setItem(process);
 			UI::PrintAssignedProcessToMachine(process.GetProcessType(), process.GetID(), process.AssignedMachineType, process.AssignedMachineID);
 		}
         p = p->getNext();
@@ -799,8 +857,10 @@ void MasterNode::Analyze(bool &exev) {
     //Reading data
     clock++;
     ExecuteEvents(exev);
-    //dispatch processes
-    dispatch();
+	//AutoPromte Inter to Sys 
+	AutoPromte();
+	//dispatch processes
+	dispatch();
     //Complete processes
     complete();
 	//
@@ -837,6 +897,7 @@ void MasterNode::SaveToFile(const string inputfile) {
 	outputfile << "\nProcesses: " << CompletedProcesses.count << "[S: " << noS << ", I: " << noI << ", C: " << noC << "]";
 	outputfile << "\nMachines: " << no_GP + no_IO + no_GU << "\t[GP: " << no_GP << ", IO: " << no_IO << ", GU: " << no_GU << "]";
 	outputfile << "\nAvg Wait = " << float(totalWait) / CompletedProcesses.count << ", Avg Exec = " << float(totalExec) / CompletedProcesses.count;
+	outputfile << "\nAuto-promoted: = " << float(prom/Process::Getinter())*100 << " %";
 
 	// ++percentage of autopromoted.
 }
