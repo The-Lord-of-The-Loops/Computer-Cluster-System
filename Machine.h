@@ -1,5 +1,6 @@
 #pragma once
-enum MachineType {
+enum MachineType
+{
 	GP,
 	IO,
 	GU
@@ -10,8 +11,10 @@ class Machine
 private:
 	int ID;
 	MachineType Type;
-	int RebootDuration, ResponseTime, N_bresp;
+	int RebootDuration, ResponseTime;
+	int N_beforeReboot; // number of processes till reboot.
 	bool Available;
+
 public:
 	//Machine();
 	Machine();
@@ -23,9 +26,9 @@ public:
 	void setRebsponseTime(int ResponseTime);
 	void setMachineType(MachineType Type);
 	void setAvailability(bool available);
-	void setNbresp(int N);
+	void setN_beforeReboot(int N);
 	//Getters
-	int getNbresp();
+	int getN_beforeReboot();
 	int getRebootDuration();
 	int getResponseTime();
 	int getID();

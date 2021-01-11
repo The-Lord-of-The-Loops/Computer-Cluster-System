@@ -191,7 +191,7 @@ void MasterNode::dispatch()
 bool MasterNode::dispatch(Process &process)
 {
 	bool Assigned = false;
-	if (process.getStatus() == Waiting && process.GetArrivalTime() + process.WT + process.GetDispatchLatency() == clock)
+	if (process.getStatus() == Waiting && process.GetArrivalTime() + process.WT + process.GetDispatchLatency() <= clock)
 	{
 		Assigned = Assign(process);
 		if (!Assigned)
@@ -268,9 +268,9 @@ bool MasterNode::Assign(Process &process)
 		if (!AV_GP_Machines.isEmpty())
 			{
 				AV_GP_Machines.dequeue(mach);
-				mach.inextime = clock + process.GetDispatchLatency() + mach.getResponseTime() + process.GetExecutionTime();
+				mach.inextime = clock + mach.getResponseTime() + process.GetExecutionTime();
 				EX_GP_Machines.enqueue(mach, mach.inextime);
-				process.WT = process.WT + process.GetDispatchLatency() + mach.getResponseTime();
+				process.WT = process.WT + mach.getResponseTime();
 				process.AssignedLastCycle = true;
 				process.AssignedMachineID = mach.getID();
 				process.AssignedMachineType = mach.getMachineType();
@@ -282,9 +282,9 @@ bool MasterNode::Assign(Process &process)
 		if (!AV_IO_Machines.isEmpty())
 		{
 			AV_IO_Machines.dequeue(mach);
-			mach.inextime = clock + process.GetDispatchLatency() + mach.getResponseTime() + process.GetExecutionTime();
+			mach.inextime = clock + mach.getResponseTime() + process.GetExecutionTime();
 			EX_IO_Machines.enqueue(mach, mach.inextime);
-			process.WT = process.WT + process.GetDispatchLatency() + mach.getResponseTime();
+			process.WT = process.WT + mach.getResponseTime();
             process.AssignedLastCycle = true;
 			process.AssignedMachineID = mach.getID();
 			process.AssignedMachineType = mach.getMachineType();
@@ -296,9 +296,9 @@ bool MasterNode::Assign(Process &process)
 		if (!AV_GU_Machines.isEmpty())
 		{
 			AV_GU_Machines.dequeue(mach);
-			mach.inextime = clock + process.GetDispatchLatency() + mach.getResponseTime() + process.GetExecutionTime();
+			mach.inextime = clock + mach.getResponseTime() + process.GetExecutionTime();
 			EX_GU_Machines.enqueue(mach, mach.inextime);
-			process.WT = process.WT + process.GetDispatchLatency() + mach.getResponseTime();
+			process.WT = process.WT + mach.getResponseTime();
             process.AssignedLastCycle = true;
 			process.AssignedMachineID = mach.getID();
 			process.AssignedMachineType = mach.getMachineType();
@@ -315,9 +315,9 @@ bool MasterNode::Assign(Process &process)
 		if (!AV_IO_Machines.isEmpty())
 		{
 			AV_IO_Machines.dequeue(mach);
-			mach.inextime = clock + process.GetDispatchLatency() + mach.getResponseTime() + process.GetExecutionTime();
+			mach.inextime = clock + mach.getResponseTime() + process.GetExecutionTime();
 			EX_IO_Machines.enqueue(mach, mach.inextime);
-			process.WT = process.WT + process.GetDispatchLatency() + mach.getResponseTime();
+			process.WT = process.WT + mach.getResponseTime();
             process.AssignedLastCycle = true;
 			process.AssignedMachineID = mach.getID();
 			process.AssignedMachineType = mach.getMachineType();
@@ -329,9 +329,9 @@ bool MasterNode::Assign(Process &process)
 		if (!AV_GP_Machines.isEmpty())
 		{
 			AV_GP_Machines.dequeue(mach);
-			mach.inextime = clock + process.GetDispatchLatency() + mach.getResponseTime() + process.GetExecutionTime();
+			mach.inextime = clock +  mach.getResponseTime() + process.GetExecutionTime();
 			EX_GP_Machines.enqueue(mach, mach.inextime);
-			process.WT = process.WT + process.GetDispatchLatency() + mach.getResponseTime();
+			process.WT = process.WT+ mach.getResponseTime();
             process.AssignedLastCycle = true;
 			process.AssignedMachineID = mach.getID();
 			process.AssignedMachineType = mach.getMachineType();
@@ -346,9 +346,9 @@ bool MasterNode::Assign(Process &process)
 		if (!AV_GU_Machines.isEmpty())
 		{
 			AV_GU_Machines.dequeue(mach);
-			mach.inextime = clock + process.GetDispatchLatency() + mach.getResponseTime() + process.GetExecutionTime();
+			mach.inextime = clock + mach.getResponseTime() + process.GetExecutionTime();
 			EX_GU_Machines.enqueue(mach, mach.inextime);
-			process.WT = process.WT + process.GetDispatchLatency() + mach.getResponseTime();
+			process.WT = process.WT + mach.getResponseTime();
             process.AssignedLastCycle = true;
 			process.AssignedMachineID = mach.getID();
 			process.AssignedMachineType = mach.getMachineType();

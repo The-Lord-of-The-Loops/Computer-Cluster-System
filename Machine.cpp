@@ -9,7 +9,7 @@ Machine::Machine(int ID, int rsp, int N, int B, MachineType type)
 	this->ID = ID;
 	ResponseTime = rsp;
 	RebootDuration = B;
-	N_bresp = N;
+	N_beforeReboot = N;
 	Available = true;
 	inextime = 0;
 	this->Type = type;
@@ -35,14 +35,14 @@ void Machine::setAvailability(bool available)
 	Available = available;
 }
 
-void Machine::setNbresp(int N)
+void Machine::setN_beforeReboot(int N)
 {
-	N_bresp = N;
+	N_beforeReboot = N;
 }
 
-int Machine::getNbresp()
+int Machine::getN_beforeReboot()
 {
-	return N_bresp;
+	return N_beforeReboot;
 }
 
 int Machine::getRebootDuration()

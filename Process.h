@@ -2,27 +2,33 @@
 
 #include "Machine.h"
 
-enum ProcessType{
+enum ProcessType
+{
     System,
     Interactive,
     ComputationallyIntensive
 };
-enum ProcessStatus {
+
+enum ProcessStatus
+{
     Complete,
     Waiting,
     Dispatched,
     InExecution
 };
-class Process {
+
+class Process
+{
 private:
-    int ArrivalTime , ID;
+    int ArrivalTime, ID;
     ProcessType Type;
     ProcessStatus Status;
     int DispatchLatency, ExecutionTime, Priority;
+
 public:
     Process();
-    Process(int ArrivalTime, int ID, ProcessType Type,int DispatchLatency, int ExecutionTime, int Priority);
-    void operator=(const Process& process)
+    Process(int ArrivalTime, int ID, ProcessType Type, int DispatchLatency, int ExecutionTime, int Priority);
+    void operator=(const Process &process)
     {
         ArrivalTime = process.ArrivalTime;
         Type = process.Type;
@@ -52,10 +58,14 @@ public:
     int GetPriority();
     int GetID();
     ProcessStatus getStatus();
+
+    ////// what are these?
     void NotAssignedLastCycle();
     bool AssignedLastCycle = false;
     int AssignedMachineID;
     MachineType AssignedMachineType;
+    
+    // Completion time
     int getCT();
 
     ~Process();
