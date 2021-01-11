@@ -49,40 +49,6 @@ void MasterNode::complete()
 		else
 			completed = false;
 	}
-	/*
-	completed = true;
-	while (completed)
-	{
-		if (!EX_GP_Machines.isEmpty()) {
-			EX_GP_Machines.peek(machine);
-			completed = complete(machine);
-		}
-		else
-			completed = false;
-	}
-
-	completed = true;
-	while (completed)
-	{
-		if (!EX_GU_Machines.isEmpty()) {
-			EX_GU_Machines.peek(machine);
-			completed = complete(machine);
-		}
-		else
-			completed = false;
-	}
-
-	completed = true;
-	while (completed)
-	{
-		if (!EX_IO_Machines.isEmpty()) {
-			EX_IO_Machines.peek(machine);
-			completed = complete(machine);
-		}
-		else
-			completed = false;
-	}
-	*/
 }
 
 bool MasterNode::complete(Process &process)
@@ -215,64 +181,6 @@ bool MasterNode::dispatch(Process &process)
 	return Assigned;
 }
 
-void MasterNode::execute()
-{
-	Process process;
-	Node<Process>* p = SysInExecution.Head;
-	while (p)
-	{
-	    process = p->getItem();
-		p = p->getNext();
-	    execute(process);
-	}
-
-	p = InterInExecution.Head;
-	while (p)
-	{
-	    process = p->getItem();
-		p = p->getNext();
-		execute(process);
-	}
-
-    p = CompInExecution.Head;
-	while (p)
-	{
-	    process = CompInExecution.Head->getItem();
-		p = p->getNext();
-	    execute(process);
-	}
-}
-
-bool MasterNode::execute(Process process)
-{
-	bool executed = false;
-	if (process.getStatus() == Dispatched && process.WT + process.GetArrivalTime() + process.GetDispatchLatency() == clock) {
-		switch (process.GetProcessType()) {
-		case System:
-
-			SysInExecution.InsertSorted(SysWaitingList.Head->getItem(), clock + process.GetExecutionTime());
-			SysWaitingList.DeleteFirst();
-			break;
-
-		case Interactive:
-			InterInExecution.InsertSorted(InterWaitingList.Head->getItem(), clock + process.GetExecutionTime());
-			InterWaitingList.DeleteFirst();
-			break;
-
-		case ComputationallyIntensive:
-
-			Process temp;
-			CompIntenWaitingList.dequeue(temp);
-			CompInExecution.InsertSorted(temp, clock + process.GetExecutionTime());
-			break;
-		}
-		process.SetStatus(InExecution);
-		executed = true;
-	}
-
-	return executed;
-}
-
 bool MasterNode::Assign(Process &process)
 {
 	Machine mach;
@@ -394,7 +302,7 @@ bool MasterNode::Assign(Process &process)
 	return false;
 }
 
-/*void MasterNode::SimpleSimulation(string inputfile)
+void MasterNode::SimpleSimulation(string inputfile)
 {
 	ReadNecessaryData(inputfile);
 	int i = 0;
@@ -413,7 +321,7 @@ bool MasterNode::Assign(Process &process)
         ExecuteEvents(exev);
 
         //Execute 1 of each type
-       ExecuteOneProcessOfEachType();
+       //ExecuteOneProcessOfEachType();
 		
 		
 		if (clock % 5 == 0)
@@ -447,7 +355,7 @@ bool MasterNode::Assign(Process &process)
             break;
         }
 	}
-}*/
+}
 
 void MasterNode::PrintAvMacIDs()
 {
@@ -864,7 +772,6 @@ void MasterNode::Analyze(bool &exev) {
     //Complete processes
     complete();
 	//
-
 }
 
 void MasterNode::SaveToFile(const string inputfile) {
