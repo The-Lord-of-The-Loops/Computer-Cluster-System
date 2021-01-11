@@ -168,22 +168,7 @@ void MasterNode::dispatch()
 		R = p->getNext();
 		dispatched = dispatch(process);
 		if (!dispatched)
-		{
 			p->setItem(process);
-			p = InterWaitingList.Head->getNext();
-			Process temp;
-			while (p)
-			{
-				if ((temp.GetArrivalTime() + temp.GetDispatchLatency()) >= clock)
-				{
-					temp = p->getItem();
-					temp.WT++;
-					temp.SetStatus(Dispatched);
-					p->setItem(temp);
-				}
-				p = p->getNext();
-			}
-		}
 		p = R;
 	}
 
@@ -195,7 +180,22 @@ void MasterNode::dispatch()
 		R = p->getNext();
 		dispatched = dispatch(process);
 		if (!dispatched)
+		{
 			p->setItem(process);
+			p = InterWaitingList.Head->getNext();
+			Process temp;
+			while (p)
+			{
+				if ((temp.GetArrivalTime() + temp.GetDispatchLatency()) <= clock)
+				{
+					temp = p->getItem();
+					temp.WT++;
+					temp.SetStatus(Dispatched);
+					p->setItem(temp);
+				}
+				p = p->getNext();
+			}
+		}
 		p = R;
 	}
 	Process temp;
@@ -215,7 +215,7 @@ bool MasterNode::dispatch(Process &process)
 {
 	bool Assigned = false;
 
-	if ((process.GetArrivalTime() + process.GetDispatchLatency()) >= clock)
+	if ((process.GetArrivalTime() + process.GetDispatchLatency()) <= clock)
 	{
 		Assigned = Assign(process);
 		if (!Assigned)
@@ -690,8 +690,6 @@ void MasterNode::AutoPromte()
 				SysWaitingList.InsertSorted(process, process.GetPriority());
 				InterWaitingList.DeleteNode(process.GetID());
 				prom++;
-
-				cout << "pormoted\n";
 			}
 
 			p = R;
@@ -906,8 +904,7 @@ void MasterNode::SaveToFile(const string inputfile)
 	outputfile << "\nProcesses: " << CompletedProcesses.count << "[S: " << noS << ", I: " << noI << ", C: " << noC << "]";
 	outputfile << "\nMachines: " << no_GP + no_IO + no_GU << "\t[GP: " << no_GP << ", IO: " << no_IO << ", GU: " << no_GU << "]";
 	outputfile << "\nAvg Wait = " << float(totalWait) / CompletedProcesses.count << ", Avg Exec = " << float(totalExec) / CompletedProcesses.count;
-	outputfile << "\nAuto-promoted: = " << float(prom / Process::Getinter()) * 100 << " %";
-	outputfile << "\nAuto-promoted: = " << prom << "  " << Process::Getinter();
+	outputfile << "\nAuto-promoted: = " << float(prom) / Process::Getinter() * 100 << " %";
 
 	// ++percentage of autopromoted.
 }

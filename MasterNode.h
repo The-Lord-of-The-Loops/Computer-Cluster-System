@@ -68,6 +68,7 @@ public:
 	void ExecuteEvents(bool &exev);
 
 	//Underconstruction
+
 	void complete();
 	bool complete(Process &process);
 	bool complete(int ID, MachineType type);
