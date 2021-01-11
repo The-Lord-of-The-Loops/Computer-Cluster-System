@@ -70,7 +70,6 @@ public:
     MachineType AssignedMachineType;
     
     // Completion time
-    int getCT();
 
     ~Process();
 };

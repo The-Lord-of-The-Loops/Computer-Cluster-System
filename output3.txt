@@ -1,13 +1,13 @@
-CT 	 ID 	 AT 	 ET
+CT 	 ID 	 AT 	 WT	 ET
 
-54 	 1 	 3 	 40 	 11
-57 	 3 	 6 	 40 	 11
-52 	 2 	 3 	 31 	 18
-59 	 6 	 15 	 32 	 12
-50 	 4 	 12 	 22 	 16
-52 	 5 	 13 	 25 	 14
-51 	 7 	 17 	 19 	 15
-Processes: 7[S: 4, I: 1, C: 2]
-Machines: 3	[GP: 1, IO: 1, GU: 1]
-Avg Wait = 29.8571, Avg Exec = 13.8571
-Auto-promoted: = 33.3333 %
+10 	 1 	 3 	 0 	 11
+10 	 3 	 6 	 4 	 11
+12 	 2 	 3 	 0 	 16
+17 	 6 	 15 	 4 	 14
+22 	 5 	 13 	 4 	 14
+23 	 4 	 12 	 0 	 14
+37 	 7 	 17 	 14 	 15
+Processes: 7[S: 3, I: 2, C: 2]
+Machines: 5	[GP: 2, IO: 2, GU: 1]
+Avg Wait = 3.71429, Avg Exec = 13.5714
+Auto-promoted: = 0 %

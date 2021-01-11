@@ -63,6 +63,7 @@ bool MasterNode::complete(Process &process)
 		{
 		case System:
 			process = SysInExecution.Head->getItem();
+			process.WT = clock - process.GetArrivalTime() - process.GetDispatchLatency() - process.GetExecutionTime();
 			CompletedProcesses.InsertLast(process);
 			complete(process.AssignedMachineID, process.AssignedMachineType);
 			SysInExecution.DeleteFirst();
@@ -796,19 +797,7 @@ bool MasterNode::Check(bool &exev)
 		exev = true;
 		return true;
 	}
-	if ((SysWaitingList.isEmpty() && InterWaitingList.isEmpty() && CompIntenWaitingList.isEmpty() &&
-		 SysInExecution.isEmpty() && InterInExecution.isEmpty() && CompInExecution.isEmpty() && queEvents.isEmpty()))
-	{
-		Node<Process> *p = CompletedProcesses.Head;
-		Process temp;
-		while (p)
-		{
-			temp = p->getItem();
-			temp.WT = (clock - temp.GetArrivalTime() - temp.GetDispatchLatency() - temp.GetExecutionTime());
-			p->setItem(temp);
-			p = p->getNext();
-		}
-	}
+	
 	return !(SysWaitingList.isEmpty() && InterWaitingList.isEmpty() && CompIntenWaitingList.isEmpty() &&
 			 SysInExecution.isEmpty() && InterInExecution.isEmpty() && CompInExecution.isEmpty() && queEvents.isEmpty());
 }
@@ -873,18 +862,17 @@ void MasterNode::Analyze(bool &exev)
 
 void MasterNode::SaveToFile(const string inputfile)
 {
-
 	ofstream outputfile;
 	auto testnumberpos = inputfile.find_first_of(".") - 1; // assuming input file is of the format testx.txt
 
 	outputfile.open("output" + inputfile.substr(testnumberpos));
-	outputfile << "CT \t ID \t AT \t ET\n";
+	outputfile << "CT \t ID \t AT \t WT\t ET\n";
 	Node<Process> *temp = CompletedProcesses.Head;
 	int noS = 0, noI = 0, noC = 0, totalWait = 0, totalExec = 0;
 	while (temp)
 	{ // InExecution list should be sorted by ET, and in turn CompletedProcesses list should be sorted by CT then ET.
 		outputfile << "\n"
-				   << temp->getItem().getCT() << " \t " << temp->getItem().GetID() << " \t " << temp->getItem().GetArrivalTime() << " \t " << temp->getItem().WT << " \t " << temp->getItem().GetExecutionTime();
+				   << temp->getItem().Assigncycle << " \t " << temp->getItem().GetID() << " \t " << temp->getItem().GetArrivalTime() << " \t " << temp->getItem().WT << " \t " << temp->getItem().GetExecutionTime();
 		totalWait += temp->getItem().WT;
 		totalExec += temp->getItem().GetExecutionTime();
 		switch (temp->getItem().GetProcessType())
