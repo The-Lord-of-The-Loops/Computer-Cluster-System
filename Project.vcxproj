@@ -47,6 +47,9 @@
     <ClCompile Include="PromotEvent.cpp" />
     <ClCompile Include="UI.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="output3.txt" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <ProjectGuid>{862E875C-E5E1-41BA-8465-07EE9D6C70BF}</ProjectGuid>

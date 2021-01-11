@@ -168,7 +168,22 @@ void MasterNode::dispatch()
 		R = p->getNext();
 		dispatched = dispatch(process);
 		if (!dispatched)
+		{
 			p->setItem(process);
+			p = InterWaitingList.Head->getNext();
+			Process temp;
+			while (p)
+			{
+				if ((temp.GetArrivalTime() + temp.GetDispatchLatency()) >= clock)
+				{
+					temp = p->getItem();
+					temp.WT++;
+					temp.SetStatus(Dispatched);
+					p->setItem(temp);
+				}
+				p = p->getNext();
+			}
+		}
 		p = R;
 	}
 
@@ -200,27 +215,13 @@ bool MasterNode::dispatch(Process &process)
 {
 	bool Assigned = false;
 
-	if ((process.GetArrivalTime() + process.GetDispatchLatency()) == clock)
+	if ((process.GetArrivalTime() + process.GetDispatchLatency()) >= clock)
 	{
 		Assigned = Assign(process);
 		if (!Assigned)
 		{
-
 			process.WT++;
 			process.SetStatus(Dispatched);
-			Node<Process> *p = InterWaitingList.Head->getNext();
-			Process temp;
-			while (p)
-			{
-				if ((temp.GetArrivalTime() + temp.GetDispatchLatency()) == clock)
-				{
-					temp = p->getItem();
-					temp.WT++;
-					temp.SetStatus(Dispatched);
-					p->setItem(temp);
-				}
-				p = p->getNext();
-			}
 		}
 	}
 	return Assigned;
@@ -677,23 +678,26 @@ void MasterNode::AutoPromte()
 	Node<Process> *p;
 	Node<Process> *R;
 	p = InterWaitingList.Head;
-	R = p->getNext();
-	while (p)
+	if (p)
 	{
-		process = p->getItem();
-		if (process.WT == AutoP)
+		R = p->getNext();
+		while (p)
 		{
-			process.SetProcessType(System);
-			SysWaitingList.InsertSorted(process, process.GetPriority());
-			InterWaitingList.DeleteNode(process.GetID());
-			prom++;
+			process = p->getItem();
+			if (process.WT == AutoP)
+			{
+				process.SetProcessType(System);
+				SysWaitingList.InsertSorted(process, process.GetPriority());
+				InterWaitingList.DeleteNode(process.GetID());
+				prom++;
 
-			cout<< "pormoted\n";
+				cout << "pormoted\n";
+			}
+
+			p = R;
+			if (p)
+				R = p->getNext();
 		}
-
-		p = R;
-		if (p)
-			R = p->getNext();
 	}
 }
 
