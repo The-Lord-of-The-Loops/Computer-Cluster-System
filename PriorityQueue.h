@@ -19,6 +19,7 @@ public:
 	bool enqueue(const T& newEntry, const int& priority);
 	bool dequeue(T& frntEntry);
 	bool peek(T& frntEntry)  const;
+	void editpeeked(T& entry);
 	PriorityQueue(const PriorityQueue<T>& PQ);
 	~PriorityQueue();
 	int GetCount() const;
@@ -93,6 +94,12 @@ bool PriorityQueue<T>::peek(T& frntEntry) const {
 	frntEntry = frontPtr->getItem().getData();
 	return true;
 
+}
+
+template<typename T>
+inline void PriorityQueue<T>::editpeeked(T& entry)
+{
+	frontPtr->setItem(entry);
 }
 
 //copy constructor

@@ -24,6 +24,7 @@ private:
     ProcessType Type;
     ProcessStatus Status;
     int DispatchLatency, ExecutionTime, Priority;
+    static int intertot;
 
 public:
     Process();
@@ -38,12 +39,14 @@ public:
         Priority = process.Priority;
         ID = process.ID;
         WT = process.WT;
+        Executionpriority = process.Executionpriority;
+        Assigncycle = process.Assigncycle;
         AssignedLastCycle = process.AssignedLastCycle;
         AssignedMachineID = process.AssignedMachineID;
         AssignedMachineType = process.AssignedMachineType;
     }
     //Setters
-    int WT = 0;
+    int WT = 0, Assigncycle = 0, Executionpriority = 0;
     void SetArrivalTime(int ArrivalTime);
     void SetProcessType(ProcessType Type);
     void SetDispatchLatency(int DispatchLatency);
@@ -57,6 +60,7 @@ public:
     int GetExecutionTime();
     int GetPriority();
     int GetID();
+    static int Getinter();
     ProcessStatus getStatus();
 
     ////// what are these?

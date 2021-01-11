@@ -59,7 +59,8 @@ public :
 	bool isEmpty() const ;
 	bool enqueue(const T& newEntry);
 	bool dequeue(T& frntEntry);  
-	bool peek(T& frntEntry)  const;	
+	bool peek(T& frntEntry)  const;
+	void editpeeked(T& entry);
 	int GetCount();
 	~LinkedQueue();
 };
@@ -168,6 +169,11 @@ bool LinkedQueue<T>:: peek(T& frntEntry) const
 	frntEntry = frontPtr->getItem();
 	return true;
 
+}
+template<typename T>
+inline void LinkedQueue<T>::editpeeked(T& entry)
+{
+	frontPtr->setItem(entry);
 }
 template<typename T>
 inline int LinkedQueue<T>::GetCount()

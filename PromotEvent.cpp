@@ -13,10 +13,14 @@ void PromotEvent::PromoteInteractiveToSystem(int ID, LinkedList<Process>& Sys, L
 {
 	if (!Inter.isEmpty())
 	{
+		Process process;
 		Node<Process>* p = Inter.Head;
 		Node<Process>* R = p->getNext();
 		if (p->getItem().GetID() == ID)
 		{
+			process = p->getItem();
+			process.SetProcessType(System);
+			p->setItem(process);
 			Sys.InsertSorted(p->getItem(), p->getItem().GetPriority());
 			p = p->getNext();
 			delete Inter.Head;

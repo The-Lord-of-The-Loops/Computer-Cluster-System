@@ -25,6 +25,7 @@ private:
 	int BGP, BGU, BIO; // reboot duration for each type in cycles
 	int AutoP;			//number of cycles after which an interactive process is promoted to a system process
 	int E;				// total number of events
+	int prom = 0;
 
 	PriorityQueue<Machine> AV_GP_Machines; //array of GP Machines
 	PriorityQueue<Machine> AV_GU_Machines; //array of GU Machines
@@ -46,9 +47,6 @@ public:
 	MasterNode(string inputfile, string outputfile);
 	MasterNode();
 	void ReadNecessaryData(string infile); // Reads number of machines of each type and reboot duration ect..
-
-	void WriteResults(string outfile);
-	void ExecuteProcesses(Process process);
 	void PrintInfo();
 
 	//Phase 1
@@ -69,11 +67,8 @@ public:
 	bool complete(int ID, MachineType type);
 	void dispatch();
 	bool dispatch(Process &process);
-	void execute();
-	bool execute(Process process);
 	bool Assign(Process &process);
 	bool IsExecuting();
-	void Checkup();
 	void AutoPromte();
 	~MasterNode();
 
@@ -90,7 +85,9 @@ public:
 	//To Sorted linked list
 
 	LinkedList<Process> InterWaitingList;
+
 	LinkedQueue<Process> CompIntenWaitingList;
+
 
 
 };

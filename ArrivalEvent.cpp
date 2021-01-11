@@ -19,7 +19,9 @@ void ArrivalEvent::AddtoWaitList(Process process, LinkedList<Process>& Sys, Link
 	if (process.GetProcessType() == System)
 		Sys.InsertSorted(process, process.GetPriority());
 	else if (process.GetProcessType() == Interactive)
+	{
 		Inter.InsertLast(process);
+	}
 	else
 		Comp.enqueue(process);
 }
