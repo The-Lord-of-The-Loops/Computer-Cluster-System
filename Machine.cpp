@@ -13,6 +13,7 @@ Machine::Machine(int ID, int rsp, int N, int B, MachineType type)
 	Available = true;
 	inextime = 0;
 	this->Type = type;
+	this-> NoProcesses=0;
 }
 
 void Machine::setRebootDuration(int RebootDuration)

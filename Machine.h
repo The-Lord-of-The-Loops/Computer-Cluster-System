@@ -19,6 +19,7 @@ public:
 	//Machine();
 	Machine();
 	Machine(int ID, int rsp, int N, int B, MachineType type);
+	int NoProcesses;
 
 	int inextime;
 	//setters
@@ -27,6 +28,7 @@ public:
 	void setMachineType(MachineType Type);
 	void setAvailability(bool available);
 	void setN_beforeReboot(int N);
+
 	//Getters
 	int getN_beforeReboot();
 	int getRebootDuration();

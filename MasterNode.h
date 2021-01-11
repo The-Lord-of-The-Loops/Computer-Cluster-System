@@ -34,6 +34,12 @@ private:
 	PriorityQueue<Machine> EX_GP_Machines;
 	PriorityQueue<Machine> EX_GU_Machines;
 	PriorityQueue<Machine> EX_IO_Machines;
+	
+	PriorityQueue<Machine> Rbooting_Machines;
+
+	PriorityQueue<Machine> InMaint_GP_Machines;
+	PriorityQueue<Machine> InMaint_GU_Machines;
+	PriorityQueue<Machine> InMaint_IO_Machines;
 
 	LinkedQueue<Event*> queEvents; // array of events pointers
 	Event** ev;
@@ -79,6 +85,7 @@ public:
 	bool Check(bool& exev);
 	void FindAssignedLastCycle();
 	bool SilentCheck();
+	void checkup();
 
 
 	LinkedList<Process> SysWaitingList;
