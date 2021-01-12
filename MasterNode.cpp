@@ -16,7 +16,7 @@ void MasterNode::complete()
 		if (!SysInExecution.isEmpty())
 		{
 			process = SysInExecution.Head->getItem();
-			completed = complete(process);
+			completed = completeProcess(process);
 		}
 		else
 			completed = false;
@@ -28,7 +28,7 @@ void MasterNode::complete()
 		if (!InterInExecution.isEmpty())
 		{
 			process = InterInExecution.Head->getItem();
-			completed = complete(process);
+			completed = completeProcess(process);
 		}
 		else
 			completed = false;
@@ -40,14 +40,14 @@ void MasterNode::complete()
 		if (!CompInExecution.isEmpty())
 		{
 			process = CompInExecution.Head->getItem();
-			completed = complete(process);
+			completed = completeProcess(process);
 		}
 		else
 			completed = false;
 	}
 }
 
-bool MasterNode::complete(Process &process)
+bool MasterNode::completeProcess(Process &process)
 {
 	bool completed = false;
 	if (process.Assigncycle + process.GetExecutionTime() == clock)
@@ -159,7 +159,7 @@ void MasterNode::dispatch()
 	{
 		process = p->getItem();
 		R = p->getNext();
-		dispatched = dispatch(process);
+		dispatched = DispatchProcess(process);
 		if (!dispatched)
 			p->setItem(process);
 		p = R;
@@ -171,7 +171,7 @@ void MasterNode::dispatch()
 	{
 		process = p->getItem();
 		R = p->getNext();
-		dispatched = dispatch(process);
+		dispatched = DispatchProcess(process);
 		if (!dispatched)
 		{
 			p->setItem(process);
@@ -196,7 +196,7 @@ void MasterNode::dispatch()
 	while (dispatched && !CompIntenWaitingList.isEmpty())
 	{
 		CompIntenWaitingList.peek(process);
-		dispatched = dispatch(process);
+		dispatched = DispatchProcess(process);
 		if (dispatched)
 			CompIntenWaitingList.dequeue(process);
 		else
@@ -204,7 +204,7 @@ void MasterNode::dispatch()
 	}
 }
 
-bool MasterNode::dispatch(Process &process)
+bool MasterNode::DispatchProcess(Process &process)
 {
 	bool Assigned = false;
 
@@ -667,6 +667,8 @@ void MasterNode::PrintInfo()
 	Printno_Completed(NoInteractive, NoCompInt, NoSys);
 }
 
+
+
 void MasterNode::ExecuteEvents(bool &exev)
 {
 	bool dequeued = true;
@@ -792,7 +794,7 @@ void MasterNode::Analyze(bool &exev)
 	//AutoPromte Inter to Sys
 	AutoPromte();
 
-	checkup();
+	ReturnFromReboot();
 	//dispatch processes
 	dispatch();
 	//Complete processes
@@ -842,7 +844,7 @@ bool MasterNode::SilentCheck()
 	return (Mode == Silent);
 }
 
-void MasterNode::checkup()
+void MasterNode::ReturnFromReboot()
 {
 	Machine mach;
 	bool dequed = Rbooting_Machines.peek(mach);

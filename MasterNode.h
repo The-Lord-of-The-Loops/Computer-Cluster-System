@@ -53,7 +53,7 @@ public:
 	void ReadNecessaryData(string infile); // Reads number of machines of each type and reboot duration ect..
 	void PrintInfo();
 
-	//Phase 1
+	// Printing Functios
 	void PrintAvMacIDs();
 	void Printno_Av_Machines();
 	void Printno_Wa_Process();
@@ -62,21 +62,26 @@ public:
 	void PrintInExecIDs();
 	void Printno_Completed(int NoInteractive, int NoCompInt, int NoSys);
 	void PrintCompletedIDs(int &NoInteractive, int &NoCompInt, int &NoSys);
+
+	//Excutes an events when the clock equals its arrival time.
 	void ExecuteEvents(bool &exev);
 
-	//
+	//calls CompleteProcess for every process in every InExcution list.
 	void complete();
 
 	//checkes if the process is done at the current clock cycle and moves it to completed processes list
-	bool complete(Process &process);
+	bool completeProcess(Process &process);
 
 	// returns machine to be available after its assigned process is done.
 	bool complete(int ID, MachineType type);
 
+
+	// calls the next function for every process in the waiting lists.
 	void dispatch();
 
-	// change the process status to " Dispatched" if it is, or increaments its waiting time.
-	bool dispatch(Process &process);
+	// change the process status to " Dispatched" if its time has come and calls the Assign for this process.
+	//Or increaments its waiting time.
+	bool DispatchProcess(Process &process);
 
 	// assign process according to the required assignment criteria
 	bool Assign(Process &process);
@@ -87,20 +92,31 @@ public:
 	// Auto promote interactive processes.
 	void AutoPromte();
 
-
 	~MasterNode();
 
 	//Phase 2
+
+	// the main function in the program.
 	void Simulate(const string path);
+	
+	//
 	void Analyze(bool &exev);
+
 	void SaveToFile(const string inputfile);
+
+
 	bool Check(bool &exev);
+	
+	//prints the process assined last cycle.
 	void FindAssignedLastCycle();
+	
+	
 	bool SilentCheck();
-	void checkup();
+	
+	// Moves machines back to be available after is has completed its rebooting time.
+	void ReturnFromReboot();
 
 	LinkedList<Process> SysWaitingList;
-	//To Sorted linked list
 
 	LinkedList<Process> InterWaitingList;
 
