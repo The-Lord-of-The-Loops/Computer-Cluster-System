@@ -17,46 +17,43 @@ using namespace std;
 class MasterNode
 {
 private:
-    PROG_MODE Mode;
+	PROG_MODE Mode;
 	unsigned long int clock;	//  the clock
 	int no_GP, no_GU, no_IO;	// number of machines for each type
 	int rsp_GP, rsp_GU, rsp_IO; // response time for each type
 	int N;						// number of processes before rebooting
-	int BGP, BGU, BIO; // reboot duration for each type in cycles
-	int AutoP;			//number of cycles after which an interactive process is promoted to a system process
-	int E;				// total number of events
-	int prom = 0;
+	int BGP, BGU, BIO;			// reboot duration for each type in cycles
+	int AutoP;					//number of cycles after which an interactive process is promoted to a system process
+	int E;						// total number of events
+	int prom = 0;				// NO. of auto promoted processes
 
-	PriorityQueue<Machine> AV_GP_Machines; //array of GP Machines
-	PriorityQueue<Machine> AV_GU_Machines; //array of GU Machines
-	PriorityQueue<Machine> AV_IO_Machines; //array of IO Machines
+	PriorityQueue<Machine> AV_GP_Machines; //array Available of GP Machines
+	PriorityQueue<Machine> AV_GU_Machines; //array Available of GU Machines
+	PriorityQueue<Machine> AV_IO_Machines; //array Available of IO Machines
 
-	PriorityQueue<Machine> EX_GP_Machines;
-	PriorityQueue<Machine> EX_GU_Machines;
-	PriorityQueue<Machine> EX_IO_Machines;
-	
-	PriorityQueue<Machine> Rbooting_Machines;
+	PriorityQueue<Machine> EX_GP_Machines; //array Working (in execution) of GP Machines
+	PriorityQueue<Machine> EX_GU_Machines; //array Working (in execution) of GU Machines
+	PriorityQueue<Machine> EX_IO_Machines; //array Working (in execution) of IO Machines
+
+	PriorityQueue<Machine> Rbooting_Machines; // arry of rebooting machines
 
 	PriorityQueue<Machine> InMaint_GP_Machines;
 	PriorityQueue<Machine> InMaint_GU_Machines;
 	PriorityQueue<Machine> InMaint_IO_Machines;
 
-	LinkedQueue<Event*> queEvents; // array of events pointers
-	Event** ev;
-    LinkedList<Process> SysInExecution; // linked list of processes in execution
-	LinkedList<Process> InterInExecution; // linked list of processes in execution
-	LinkedList<Process> CompInExecution; // linked list of processes in execution
+	LinkedQueue<Event *> queEvents; // array of events pointers
+	Event **ev;
+	LinkedList<Process> SysInExecution;		// linked list of processes in execution
+	LinkedList<Process> InterInExecution;	// linked list of processes in execution
+	LinkedList<Process> CompInExecution;	// linked list of processes in execution
 	LinkedList<Process> CompletedProcesses; // linked list of completed process
 
 public:
-
-	MasterNode(string inputfile, string outputfile);
 	MasterNode();
 	void ReadNecessaryData(string infile); // Reads number of machines of each type and reboot duration ect..
 	void PrintInfo();
 
 	//Phase 1
-	void SimpleSimulation(string inputfile);
 	void PrintAvMacIDs();
 	void Printno_Av_Machines();
 	void Printno_Wa_Process();
@@ -64,30 +61,43 @@ public:
 	void Printno_In_Execution();
 	void PrintInExecIDs();
 	void Printno_Completed(int NoInteractive, int NoCompInt, int NoSys);
-    void PrintCompletedIDs(int &NoInteractive, int &NoCompInt, int &NoSys);
+	void PrintCompletedIDs(int &NoInteractive, int &NoCompInt, int &NoSys);
 	void ExecuteEvents(bool &exev);
 
-	//Underconstruction
-
+	//
 	void complete();
+
+	//checkes if the process is done at the current clock cycle and moves it to completed processes list
 	bool complete(Process &process);
+
+	// returns machine to be available after its assigned process is done.
 	bool complete(int ID, MachineType type);
+
 	void dispatch();
+
+	// change the process status to " Dispatched" if it is, or increaments its waiting time.
 	bool dispatch(Process &process);
+
+	// assign process according to the required assignment criteria
 	bool Assign(Process &process);
+
+	// checks if there is any excuting processes int the excution lists.
 	bool IsExecuting();
+
+	// Auto promote interactive processes.
 	void AutoPromte();
+
+
 	~MasterNode();
 
 	//Phase 2
 	void Simulate(const string path);
 	void Analyze(bool &exev);
 	void SaveToFile(const string inputfile);
-	bool Check(bool& exev);
+	bool Check(bool &exev);
 	void FindAssignedLastCycle();
 	bool SilentCheck();
 	void checkup();
-
 
 	LinkedList<Process> SysWaitingList;
 	//To Sorted linked list
@@ -95,7 +105,4 @@ public:
 	LinkedList<Process> InterWaitingList;
 
 	LinkedQueue<Process> CompIntenWaitingList;
-
-
-
 };

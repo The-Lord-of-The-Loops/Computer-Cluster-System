@@ -1,11 +1,5 @@
 #include "MasterNode.h"
 
-MasterNode::MasterNode(string inputfile, string outputfile)
-{
-	SysWaitingList.count = 0;
-	ReadNecessaryData(inputfile);
-	clock = 0;
-}
 
 MasterNode::MasterNode()
 {
@@ -16,7 +10,6 @@ MasterNode::MasterNode()
 void MasterNode::complete()
 {
 	bool completed = true;
-	Machine machine;
 	Process process;
 	while (completed)
 	{
@@ -90,7 +83,6 @@ bool MasterNode::complete(Process &process)
 	return completed;
 }
 
-// returns machine to be ava
 bool MasterNode::complete(int ID, MachineType type)
 {
 	bool completed = false;
@@ -355,58 +347,6 @@ bool MasterNode::Assign(Process &process)
 	return false;
 }
 
-void MasterNode::SimpleSimulation(string inputfile)
-{
-	ReadNecessaryData(inputfile);
-	int i = 0;
-	bool operate = true;
-	bool nextcycle = true;
-	bool exev;
-
-	while (operate && nextcycle)
-	{
-		clock++;
-		i++;
-		exev = false;
-
-		//Assigning Events
-		ExecuteEvents(exev);
-
-		//Execute 1 of each type
-		//ExecuteOneProcessOfEachType();
-
-		if (clock % 5 == 0)
-		{
-			//CompleteEach5Cycles();
-			Process process;
-
-			if (SysInExecution.Head)
-				process = SysInExecution.Head->getItem();
-			CompletedProcesses.InsertLast(process);
-			SysInExecution.DeleteFirst();
-
-			if (InterInExecution.Head)
-				process = InterInExecution.Head->getItem();
-			CompletedProcesses.InsertLast(process);
-			InterInExecution.DeleteFirst();
-
-			if (CompInExecution.Head)
-				process = CompInExecution.Head->getItem();
-			CompletedProcesses.InsertLast(process);
-			CompInExecution.DeleteFirst();
-		}
-		cout << "Cycle: " << i << endl;
-		//Printing to console
-		PrintInfo();
-
-		//Checking for operations
-		if (!exev && SysWaitingList.isEmpty() && InterWaitingList.isEmpty() && CompIntenWaitingList.isEmpty() && SysInExecution.isEmpty() && InterInExecution.isEmpty() && CompInExecution.isEmpty())
-		{
-			operate = false;
-			break;
-		}
-	}
-}
 
 void MasterNode::PrintAvMacIDs()
 {
