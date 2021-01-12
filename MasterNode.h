@@ -37,9 +37,6 @@ private:
 
 	PriorityQueue<Machine> Rbooting_Machines; // arry of rebooting machines
 
-	PriorityQueue<Machine> InMaint_GP_Machines;
-	PriorityQueue<Machine> InMaint_GU_Machines;
-	PriorityQueue<Machine> InMaint_IO_Machines;
 
 	LinkedQueue<Event *> queEvents; // array of events pointers
 	Event **ev;
@@ -73,7 +70,7 @@ public:
 	bool completeProcess(Process &process);
 
 	// returns machine to be available after its assigned process is done.
-	bool complete(int ID, MachineType type);
+	bool completeMachine(int ID, MachineType type);
 
 
 	// calls the next function for every process in the waiting lists.
@@ -86,7 +83,7 @@ public:
 	// assign process according to the required assignment criteria
 	bool Assign(Process &process);
 
-	// checks if there is any excuting processes int the excution lists.
+	// checks if there is any excuting processes in the excution lists.
 	bool IsExecuting();
 
 	// Auto promote interactive processes.

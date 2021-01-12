@@ -58,21 +58,21 @@ bool MasterNode::completeProcess(Process &process)
 			process = SysInExecution.Head->getItem();
 			process.WT = clock - process.GetArrivalTime() - process.GetDispatchLatency() - process.GetExecutionTime();
 			CompletedProcesses.InsertLast(process);
-			complete(process.AssignedMachineID, process.AssignedMachineType);
+			completeMachine(process.AssignedMachineID, process.AssignedMachineType);
 			SysInExecution.DeleteFirst();
 			break;
 
 		case Interactive:
 			process = InterInExecution.Head->getItem();
 			CompletedProcesses.InsertLast(process);
-			complete(process.AssignedMachineID, process.AssignedMachineType);
+			completeMachine(process.AssignedMachineID, process.AssignedMachineType);
 			InterInExecution.DeleteFirst();
 			break;
 
 		case ComputationallyIntensive:
 			process = CompInExecution.Head->getItem();
 			CompletedProcesses.InsertLast(process);
-			complete(process.AssignedMachineID, process.AssignedMachineType);
+			completeMachine(process.AssignedMachineID, process.AssignedMachineType);
 			CompInExecution.DeleteFirst();
 			break;
 		}
@@ -83,7 +83,7 @@ bool MasterNode::completeProcess(Process &process)
 	return completed;
 }
 
-bool MasterNode::complete(int ID, MachineType type)
+bool MasterNode::completeMachine(int ID, MachineType type)
 {
 	bool completed = false;
 	Machine machine;

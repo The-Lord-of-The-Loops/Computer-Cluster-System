@@ -1,4 +1,4 @@
 Hosnoo: Event classes, Delete, Promote functions - LinkedList Specialization - Masternode Simulation Functions
 Ezzat: Process class - Printing functions in Masternode - EventExecution function in masternode
-Mohammed: Machine class - Masternode Constructor - Read from file function
+Mohammed: Machine class - Masternode Constructor - Read from file function- Reboot function
 Fatin: Priority & Linked Queues implementation - PrintingFunctions - Reading Files -docs
